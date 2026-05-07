@@ -1,0 +1,406 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/geoskimoto/projects/csc_manual_testing/.venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.8.0-107-generic-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'base-url': '2.1.0', 'playwright': '0.7.2', 'metadata': '3.1.1', 'html': '4.2.0', 'asyncio': '1.3.0', 'json-report': '1.5.0'}, 'Base URL': ''}
+rootdir: /home/geoskimoto/projects/csc_manual_testing
+configfile: pytest.ini
+plugins: base-url-2.1.0, playwright-0.7.2, metadata-3.1.1, html-4.2.0, asyncio-1.3.0, json-report-1.5.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 130 items
+
+tests/test_01_environment.py::test_1_site_loads PASSED                   [  0%]
+tests/test_01_environment.py::test_1_alice_login PASSED                  [  1%]
+tests/test_01_environment.py::test_1_bob_login PASSED                    [  2%]
+tests/test_01_environment.py::test_1_wrong_password_rejected PASSED      [  3%]
+tests/test_02_registration.py::test_2_1_sign_up_redirects_to_membership_application PASSED [  3%]
+tests/test_02_registration.py::test_2_2_membership_application_loads PASSED [  4%]
+tests/test_02_registration.py::test_2_3_membership_application_can_be_submitted PASSED [  5%]
+tests/test_02_registration.py::test_2_4_login_page_has_expected_fields PASSED [  6%]
+tests/test_02_registration.py::test_2_5_invalid_invite_token_rejected PASSED [  6%]
+tests/test_02_registration.py::test_2_6_valid_token_shows_registration_form FAILED [  7%]
+tests/test_02_registration.py::test_2_7_email_is_prefilled_from_invitation SKIPPED [  8%]
+tests/test_02_registration.py::test_2_8_password_mismatch_shows_error FAILED [  9%]
+tests/test_02_registration.py::test_2_9_weak_password_rejected FAILED    [ 10%]
+tests/test_02_registration.py::test_2_10_missing_required_fields_shows_error FAILED [ 10%]
+tests/test_02_registration.py::test_2_11_partial_family_member_shows_error SKIPPED [ 11%]
+tests/test_02_registration.py::test_2_12_solo_registration_succeeds FAILED [ 12%]
+tests/test_02_registration.py::test_2_13_registration_with_adult_family_member_succeeds FAILED [ 13%]
+tests/test_02_registration.py::test_2_14_registration_with_child_family_member_succeeds FAILED [ 13%]
+tests/test_02_registration.py::test_2_15_used_token_is_rejected PASSED   [ 14%]
+tests/test_02_registration.py::test_2_16_new_account_can_sign_in SKIPPEDn or registration failed) [ 15%]
+tests/test_03_dashboard.py::test_3_1_dashboard_loads PASSED              [ 16%]
+tests/test_03_dashboard.py::test_3_2_dashboard_shows_wallet PASSED       [ 16%]
+tests/test_03_dashboard.py::test_3_3_bookings_tab PASSED                 [ 17%]
+tests/test_03_dashboard.py::test_3_4_profile_page PASSED                 [ 18%]
+tests/test_03_dashboard.py::test_3_5_wallet_page PASSED                  [ 19%]
+tests/test_04_booking_individual.py::test_4_1_check_availability PASSED  [ 20%]
+tests/test_04_booking_individual.py::test_4_2_add_room_to_cart PASSED    [ 20%]
+tests/test_04_booking_individual.py::test_4_3_view_cart PASSED           [ 21%]
+tests/test_04_booking_individual.py::test_4_4_cart_timer_visible PASSED  [ 22%]
+tests/test_04_booking_individual.py::test_4_5_remove_from_cart PASSED    [ 23%]
+tests/test_04_booking_individual.py::test_4_7_location_filter PASSED     [ 23%]
+tests/test_05_family_booking.py::test_5_1_profile_page_accessible PASSED [ 24%]
+tests/test_05_family_booking.py::test_5_2_family_section_on_profile_or_dashboard PASSED [ 25%]
+tests/test_05_family_booking.py::test_5_3_availability_shows_member_selects PASSED [ 26%]
+tests/test_05_family_booking.py::test_5_4_availability_member_select_has_alice PASSED [ 26%]
+tests/test_05_family_booking.py::test_5_5_multiple_rooms_can_be_selected PASSED [ 27%]
+tests/test_06_guest_booking.py::test_6_1_availability_page_loads_for_guest_test PASSED [ 28%]
+tests/test_06_guest_booking.py::test_6_2_guest_option_in_member_select PASSED [ 29%]
+tests/test_06_guest_booking.py::test_6_3_add_room_with_member_to_cart PASSED [ 30%]
+tests/test_06_guest_booking.py::test_6_4_checkout_shows_occupant_info PASSED [ 30%]
+tests/test_07_09_payment.py::test_7_1_checkout_page_loads PASSED         [ 31%]
+tests/test_07_09_payment.py::test_7_1_wallet_toggle_at_checkout PASSED   [ 32%]
+tests/test_07_09_payment.py::test_8_1_stripe_form_present PASSED         [ 33%]
+tests/test_07_09_payment.py::test_8_1_stripe_success_payment PASSED      [ 33%]
+tests/test_07_09_payment.py::test_8_2_stripe_declined_card SKIPPED       [ 34%]
+tests/test_10_cancellation.py::test_10_1_cancel_button_visible_on_booking PASSED [ 35%]
+tests/test_10_cancellation.py::test_10_2_refund_url_exists PASSED        [ 36%]
+tests/test_10_cancellation.py::test_10_3_booking_history_has_status_badges PASSED [ 36%]
+tests/test_10_cancellation.py::test_10_4_cancellation_policy_info_present PASSED [ 37%]
+tests/test_11_booking_history.py::test_11_1_bookings_page_loads PASSED   [ 38%]
+tests/test_11_booking_history.py::test_11_2_booking_detail_loads PASSED  [ 39%]
+tests/test_11_booking_history.py::test_11_3_booking_detail_has_dates_and_room PASSED [ 40%]
+tests/test_11_booking_history.py::test_11_4_booking_invoice_link PASSED  [ 40%]
+tests/test_11_booking_history.py::test_11_5_dashboard_links_to_bookings PASSED [ 41%]
+tests/test_12_admin_booking.py::test_12_1_admin_dashboard_loads PASSED   [ 42%]
+tests/test_12_admin_booking.py::test_12_2_admin_blocked_for_regular_member PASSED [ 43%]
+tests/test_12_admin_booking.py::test_12_3_admin_availability_search PASSED [ 43%]
+tests/test_12_admin_booking.py::test_12_4_admin_availability_returns_results PASSED [ 44%]
+tests/test_12_admin_booking.py::test_12_5_admin_search_members_api PASSED [ 45%]
+tests/test_12_admin_booking.py::test_12_6_admin_cart_page_loads PASSED   [ 46%]
+tests/test_12_admin_booking.py::test_12_7_admin_checkout_page_loads PASSED [ 46%]
+tests/test_12_admin_booking.py::test_12_8_admin_transactions_page_loads PASSED [ 47%]
+tests/test_13_admin_manage.py::test_13_1_manage_bookings_loads PASSED    [ 48%]
+tests/test_13_admin_manage.py::test_13_2_manage_bookings_shows_alice_booking PASSED [ 49%]
+tests/test_13_admin_manage.py::test_13_3_manage_bookings_has_search_or_filter PASSED [ 50%]
+tests/test_13_admin_manage.py::test_13_4_admin_booking_detail_loads PASSED [ 50%]
+tests/test_13_admin_manage.py::test_13_5_admin_manage_blocked_for_regular_member PASSED [ 51%]
+tests/test_13_admin_manage.py::test_13_6_admin_can_view_dashboard_stats PASSED [ 52%]
+tests/test_14_subscriptions.py::test_14_1_subscriptions_page_loads PASSED [ 53%]
+tests/test_14_subscriptions.py::test_14_1_alice_subscription_is_active PASSED [ 53%]
+tests/test_14_subscriptions.py::test_14_2_subscription_shown_on_dashboard PASSED [ 54%]
+tests/test_14_subscriptions.py::test_14_3_subscription_shown_on_profile PASSED [ 55%]
+tests/test_14_subscriptions.py::test_14_4_auto_renew_toggle_present PASSED [ 56%]
+tests/test_14_subscriptions.py::test_14_5_subscriptions_redirect_anonymous PASSED [ 56%]
+tests/test_15_invoicing.py::test_15_1_my_invoices_page_loads PASSED      [ 57%]
+tests/test_15_invoicing.py::test_15_2_my_invoices_anonymous_redirect PASSED [ 58%]
+tests/test_15_invoicing.py::test_15_3_billing_admin_dashboard_loads PASSED [ 59%]
+tests/test_15_invoicing.py::test_15_4_billing_admin_blocked_for_booking_admin SKIPPEDther this is intended app behaviour) [ 60%]
+tests/test_15_invoicing.py::test_15_5_billing_admin_blocked_for_regular_member PASSED [ 60%]
+tests/test_15_invoicing.py::test_15_6_invoice_create_page_loads PASSED   [ 61%]
+tests/test_15_invoicing.py::test_15_7_alice_invoice_shows_booking_receipt PASSED [ 62%]
+tests/test_16_notifications.py::test_16_1_notifications_page_loads PASSED [ 63%]
+tests/test_16_notifications.py::test_16_2_mark_all_read_button_present PASSED [ 63%]
+tests/test_16_notifications.py::test_16_3_mark_all_read_action PASSED    [ 64%]
+tests/test_16_notifications.py::test_16_4_individual_notification_mark_read SKIPPEDconsuming the single seeded unread notification. Needs a
+second seeded unread notification to run reliably in the full suite.)    [ 65%]
+tests/test_16_notifications.py::test_16_5_notifications_anonymous_redirect PASSED [ 66%]
+tests/test_16_notifications.py::test_16_6_notification_count_in_nav PASSED [ 66%]
+tests/test_17_wallet.py::test_17_1_wallet_page_loads PASSED              [ 67%]
+tests/test_17_wallet.py::test_17_2_wallet_balance_shown PASSED           [ 68%]
+tests/test_17_wallet.py::test_17_3_transaction_history_present PASSED    [ 69%]
+tests/test_17_wallet.py::test_17_4_add_funds_entry_point PASSED          [ 70%]
+tests/test_17_wallet.py::test_17_5_add_funds_page_loads PASSED           [ 70%]
+tests/test_17_wallet.py::test_17_6_wallet_shown_on_dashboard PASSED      [ 71%]
+tests/test_17_wallet.py::test_17_7_my_invoices_page_loads PASSED         [ 72%]
+tests/test_17_wallet.py::test_17_8_wallet_anonymous_redirect PASSED      [ 73%]
+tests/test_18_profile.py::test_18_1_profile_page_loads PASSED            [ 73%]
+tests/test_18_profile.py::test_18_2_profile_shows_member_info PASSED     [ 74%]
+tests/test_18_profile.py::test_18_3_profiles_list_page_loads PASSED      [ 75%]
+tests/test_18_profile.py::test_18_4_edit_profile_link_present PASSED     [ 76%]
+tests/test_18_profile.py::test_18_5_change_password_page_loads PASSED    [ 76%]
+tests/test_18_profile.py::test_18_6_profile_edit_page_loads PASSED       [ 77%]
+tests/test_18_profile.py::test_18_7_profile_anonymous_redirect PASSED    [ 78%]
+tests/test_18_profile.py::test_18_8_dashboard_shows_profile_link PASSED  [ 79%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/] PASSED [ 80%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/wallet/] PASSED [ 80%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/profile/] PASSED [ 81%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/admin-bookings/] PASSED [ 82%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/admin-bookings/manage-bookings/] PASSED [ 83%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/billing/admin-tool/] PASSED [ 83%]
+tests/test_19_security.py::test_19_3_cannot_access_other_users_booking PASSED [ 84%]
+tests/test_19_security.py::test_19_5_csrf_protection PASSED              [ 85%]
+tests/test_20_edge_cases.py::test_20_1_past_date_booking PASSED          [ 86%]
+tests/test_20_edge_cases.py::test_20_2_same_day_checkin_checkout PASSED  [ 86%]
+tests/test_20_edge_cases.py::test_20_6_concurrent_cart_add PASSED        [ 87%]
+tests/test_21_responsive.py::test_21_responsive_dashboard[phone-viewport0] PASSED [ 88%]
+tests/test_21_responsive.py::test_21_responsive_dashboard[tablet-viewport1] PASSED [ 89%]
+tests/test_21_responsive.py::test_21_responsive_availability[phone-viewport0] PASSED [ 90%]
+tests/test_21_responsive.py::test_21_responsive_availability[tablet-viewport1] PASSED [ 90%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/-home] SKIPPEDroot/.cache/ms-playwright/firefox-1509/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 91%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/user/sign-in/-login] SKIPPEDroot/.cache/ms-
+playwright/firefox-1509/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 92%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/bookings/check_availability/-availability] SKIPPEDroot/.cache/ms-
+playwright/firefox-1509/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 93%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/-home] SKIPPEDoot/.cache/ms-playwright/webkit-2248/pw_run.sh
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 93%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/user/sign-in/-login] SKIPPEDoot/.cache/ms-playwright/webkit-2248/pw_run.sh
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 94%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/bookings/check_availability/-availability] SKIPPEDoot/.cache/ms-
+playwright/webkit-2248/pw_run.sh
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 95%]
+tests/test_22_cross_browser.py::test_22_3_firefox_login_flow SKIPPEDt
+/root/.cache/ms-playwright/firefox-1509/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 96%]
+tests/test_22_cross_browser.py::test_22_4_webkit_login_flow SKIPPEDt
+/root/.cache/ms-playwright/webkit-2248/pw_run.sh
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 96%]
+tests/test_22_cross_browser.py::test_22_5_firefox_availability_search SKIPPEDroot/.cache/ms-playwright/firefox-1509/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks
+like Playwright was just installed or updated.       ║
+║ Please run the
+following command to download new browsers: ║
+║
+║
+║     playwright install                                     ║
+║
+║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝)          [ 97%]
+tests/test_23_race_conditions.py::test_23_1_concurrent_cart_add_different_users PASSED [ 98%]
+tests/test_23_race_conditions.py::test_23_2_concurrent_cart_add_same_user_session PASSED [ 99%]
+tests/test_23_race_conditions.py::test_23_3_cart_state_isolated_between_users PASSED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_2_6_valid_token_shows_registration_form _________________
+tests/test_02_registration.py:156: in test_2_6_valid_token_shows_registration_form
+    assert any(kw in content.lower() for kw in [
+E   AssertionError: Registration form missing expected content
+E   assert False
+E    +  where False = any(<generator object test_2_6_valid_token_shows_registration_form.<locals>.<genexpr> at 0x7270e679b140>)
+____________________ test_2_8_password_mismatch_shows_error ____________________
+tests/test_02_registration.py:190: in test_2_8_password_mismatch_shows_error
+    await page.fill('input[name="first_name"]', "Test")
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:10140: in fill
+    await self._impl_obj.fill(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:893: in fill
+    return await self._main_frame.fill(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:607: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:619: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("input[name=\"first_name\"]")
+_______________________ test_2_9_weak_password_rejected ________________________
+tests/test_02_registration.py:218: in test_2_9_weak_password_rejected
+    await page.fill('input[name="first_name"]', "Test")
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:10140: in fill
+    await self._impl_obj.fill(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:893: in fill
+    return await self._main_frame.fill(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:607: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:619: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("input[name=\"first_name\"]")
+________________ test_2_10_missing_required_fields_shows_error _________________
+tests/test_02_registration.py:246: in test_2_10_missing_required_fields_shows_error
+    await page.click('button[type="submit"]')
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:9931: in click
+    await self._impl_obj.click(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:854: in click
+    return await self._main_frame._click(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:566: in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.click: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("button[type=\"submit\"]")
+_____________________ test_2_12_solo_registration_succeeds _____________________
+tests/test_02_registration.py:318: in test_2_12_solo_registration_succeeds
+    await _fill_primary_user(page, first="Solo", last="Registrant")
+tests/test_02_registration.py:303: in _fill_primary_user
+    await page.fill('input[name="first_name"]', first)
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:10140: in fill
+    await self._impl_obj.fill(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:893: in fill
+    return await self._main_frame.fill(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:607: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:619: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("input[name=\"first_name\"]")
+___________ test_2_13_registration_with_adult_family_member_succeeds ___________
+tests/test_02_registration.py:341: in test_2_13_registration_with_adult_family_member_succeeds
+    await _fill_primary_user(page, first="Adult", last="Primary")
+tests/test_02_registration.py:303: in _fill_primary_user
+    await page.fill('input[name="first_name"]', first)
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:10140: in fill
+    await self._impl_obj.fill(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:893: in fill
+    return await self._main_frame.fill(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:607: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:619: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("input[name=\"first_name\"]")
+___________ test_2_14_registration_with_child_family_member_succeeds ___________
+tests/test_02_registration.py:375: in test_2_14_registration_with_child_family_member_succeeds
+    await _fill_primary_user(page, first="Child", last="Primary")
+tests/test_02_registration.py:303: in _fill_primary_user
+    await page.fill('input[name="first_name"]', first)
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:10140: in fill
+    await self._impl_obj.fill(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:893: in fill
+    return await self._main_frame.fill(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:607: in fill
+    await self._fill(**locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:619: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("input[name=\"first_name\"]")
+--------------------------------- JSON report ----------------------------------
+report saved to: reports/report.json
+- Generated html report: file:///home/geoskimoto/projects/csc_manual_testing/reports/report.html -
+=========================== short test summary info ============================
+FAILED tests/test_02_registration.py::test_2_6_valid_token_shows_registration_form - AssertionError: Registration form missing expected content
+assert False
+ +  where False = any(<generator object test_2_6_valid_token_shows_registration_form.<locals>.<genexpr> at 0x7270e679b140>)
+FAILED tests/test_02_registration.py::test_2_8_password_mismatch_shows_error - playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input[name=\"first_name\"]")
+FAILED tests/test_02_registration.py::test_2_9_weak_password_rejected - playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input[name=\"first_name\"]")
+FAILED tests/test_02_registration.py::test_2_10_missing_required_fields_shows_error - playwright._impl._errors.TimeoutError: Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[type=\"submit\"]")
+FAILED tests/test_02_registration.py::test_2_12_solo_registration_succeeds - playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input[name=\"first_name\"]")
+FAILED tests/test_02_registration.py::test_2_13_registration_with_adult_family_member_succeeds - playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input[name=\"first_name\"]")
+FAILED tests/test_02_registration.py::test_2_14_registration_with_child_family_member_succeeds - playwright._impl._errors.TimeoutError: Page.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input[name=\"first_name\"]")
+============ 7 failed, 108 passed, 15 skipped in 687.55s (0:11:27) =============
