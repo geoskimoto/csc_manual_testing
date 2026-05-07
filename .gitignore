@@ -10,6 +10,7 @@ __pycache__/
 
 # Pytest
 .pytest_cache/
+tests/screenshots/
 reports/screenshots/
 
 # Claude
