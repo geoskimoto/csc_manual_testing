@@ -27,7 +27,7 @@ from tests.helpers import BASE_URL, LOGIN_URL, SIGN_UP_URL, MEMBERSHIP_APP_URL, 
 REGISTER_FAMILY_URL = f"{BASE_URL}/user/register-family/"
 REGISTER_URL        = f"{BASE_URL}/user/register/"
 PASSWORD_RESET_URL  = f"{BASE_URL}/user/password-reset/"
-REG_TOKENS_FILE     = os.path.join(os.path.dirname(__file__), "..", "cycle", "reg_test_tokens.json")
+REG_TOKENS_FILE     = "/tmp/csc_reg_test_tokens.json"
 
 # Passwords used when completing test registrations
 _REG_PASSWORD = "TestRegPass99!"
