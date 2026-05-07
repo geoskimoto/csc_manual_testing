@@ -1,0 +1,50 @@
+{
+  "cycle": 1,
+  "timestamp": "2026-05-05T00:00:00",
+  "summary": {
+    "passed": 63,
+    "failed": 2,
+    "skipped": 7,
+    "total": 72
+  },
+  "failures": [],
+  "test_bugs": [
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_1_stripe_success_payment",
+      "classification": "test_bug",
+      "description": "Strict mode violation: locator('#card-number-element iframe') resolves to 2 iframes. Stripe Link (a payment acceleration feature) injects a second iframe (cardNumberButton*) alongside the main card input iframe inside #card-number-element. The test's _fill_stripe_fields() helper uses page.frame_locator('#card-number-element iframe') without .first, triggering Playwright's strict mode. The site behavior is correct — Stripe Link is expected. The test locator is too broad. Fix: use page.frame_locator('#card-number-element iframe[title*=\"card number\"]') or .first.",
+      "likely_files": ["tests/test_07_09_payment.py"],
+      "do_not_touch": []
+    },
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_2_stripe_declined_card",
+      "classification": "test_bug",
+      "description": "Same root cause as test_8_1_stripe_success_payment — _fill_stripe_fields() locator '#card-number-element iframe' resolves to 2 elements due to Stripe Link's cardNumberButton iframe. Fix: same selector update as test_8_1.",
+      "likely_files": ["tests/test_07_09_payment.py"],
+      "do_not_touch": []
+    }
+  ],
+  "missing_data": [
+    {
+      "test_ids": [
+        "tests/test_10_cancellation.py::test_10_1_cancel_button_visible_on_booking",
+        "tests/test_10_cancellation.py::test_10_2_refund_url_exists",
+        "tests/test_10_cancellation.py::test_10_4_cancellation_policy_info_present",
+        "tests/test_11_booking_history.py::test_11_2_booking_detail_loads",
+        "tests/test_11_booking_history.py::test_11_3_booking_detail_has_dates_and_room",
+        "tests/test_11_booking_history.py::test_11_4_booking_invoice_link"
+      ],
+      "description": "Tests navigate to /dashboard/bookings/ and look for a[href*='/dashboard/booking_detail/'] to find booking detail links. Seed data confirmed it created Alice's past and future bookings, but these tests all skip with 'No bookings found'. Either the booking detail URL pattern does not contain '/dashboard/booking_detail/' (wrong selector in the test), or the bookings list page renders booking links with a different URL structure. Needs DOM inspection of /dashboard/bookings/ to verify the actual href pattern used.",
+      "gap": "Booking detail link selector may not match the app's actual URL pattern for individual booking pages."
+    },
+    {
+      "test_ids": [
+        "tests/test_16_notifications.py::test_16_4_individual_notification_mark_read"
+      ],
+      "description": "Seed data confirmed an unread notification exists for Alice, but test_16_4 skips because no individual mark-read links are found on the notifications page. The test likely looks for a per-notification 'mark as read' anchor or button — the notifications page may only expose a 'Mark All Read' bulk action (which test_16_3 passes), with no per-item mark-read link in the current UI.",
+      "gap": "Notifications page may not have per-notification mark-as-read links — only bulk 'Mark All Read' is present."
+    }
+  ],
+  "stop_loop": true,
+  "notes": "All three previously known real bugs (test_17_4_add_funds_entry_point, test_19_2_member_cannot_access_admin[/billing/admin-tool/], test_21_responsive_dashboard[phone-viewport0]) now PASS — they have been fixed in the application since the CLAUDE.md was last updated. Zero real_bug failures remain. Loop is complete."
+}

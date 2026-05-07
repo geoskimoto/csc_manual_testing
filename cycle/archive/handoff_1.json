@@ -1,0 +1,44 @@
+{
+  "cycle": 1,
+  "timestamp": "2026-05-04T00:00:00",
+  "summary": {"passed": 61, "failed": 4, "skipped": 7},
+  "failures": [
+    {
+      "test_id": "tests/test_16_notifications.py::test_16_3_mark_all_read_action",
+      "classification": "real_bug",
+      "description": "The 'Mark all read' link is present in the DOM (<a href='#' onclick='markAllRead(); return false;' class='btn btn-sm btn-link text-decoration-none'>Mark all read</a>) but Playwright reports it as not visible — 'element is not visible' after repeated retries over 30 seconds. Alice has an unread notification (seeded), so the button should be interactable. The button appears to exist in the HTML but is hidden from the user, making it inaccessible.",
+      "likely_files": [
+        "notifications/templates/notifications/notifications.html",
+        "notifications/views.py",
+        "user_dashboard/templates/"
+      ],
+      "do_not_touch": ["tests/test_16_notifications.py"]
+    },
+    {
+      "test_id": "tests/test_21_responsive.py::test_21_responsive_dashboard[phone-viewport0]",
+      "classification": "real_bug",
+      "description": "Dashboard has horizontal scroll/overflow at 375px viewport width (phone). scrollWidth > clientWidth. This is a known layout bug — content or a component is wider than the viewport at mobile sizes, causing horizontal overflow.",
+      "likely_files": [
+        "user_dashboard/templates/",
+        "static/css/"
+      ],
+      "do_not_touch": ["tests/test_21_responsive.py"]
+    }
+  ],
+  "test_bugs": [
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_1_stripe_success_payment",
+      "classification": "test_bug",
+      "description": "After filling card number in the first Stripe iframe, the expiry field locator '[placeholder*=\"MM / YY\"], [data-elements-stable-field-name=\"cardExpiry\"]' times out. Stripe Elements may render each field (card number, expiry, CVC) in a separate iframe; the test targets only the first iframe for all three fields. The card number fill succeeds (in the first iframe) but expiry is not present in that same iframe. The test selector strategy needs to target individual per-field iframes.",
+      "note": "Do NOT modify test file. Report to user for test redesign."
+    },
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_2_stripe_declined_card",
+      "classification": "test_bug",
+      "description": "Same root cause as test_8_1 — expiry field not found in first Stripe iframe. The test uses the same selector approach.",
+      "note": "Do NOT modify test file. Report to user for test redesign."
+    }
+  ],
+  "missing_data": [],
+  "stop_loop": false
+}

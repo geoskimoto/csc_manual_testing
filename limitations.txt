@@ -1,0 +1,32 @@
+  What's set up:                                               
+                                                                                                                     
+  - .venv/ with playwright, pytest, pytest-playwright, pytest-asyncio                                                
+  - Chromium browser downloaded and ready (headless)                                                                 
+  - 31 automated tests across 6 sections of the guide:         
+                                                                                                                     
+  ┌───────────────────────────────┬──────────────────────────────────────────────────────────────────────┐
+  │             File              │                                Covers                                │           
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ test_01_environment.py        │ Site load, Alice/Bob login, wrong password rejection                 │
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ test_03_dashboard.py          │ Dashboard load, wallet display, bookings tab, profile tab            │           
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤           
+  │ test_04_booking_individual.py │ Availability search, add to cart, view cart, remove, location filter │           
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤           
+  │ test_07_09_payment.py         │ Checkout page, wallet toggle, Stripe form presence, declined card    │
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤           
+  │ test_19_security.py           │ Anon redirects, member can't reach admin, cross-user data, CSRF      │
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤           
+  │ test_20_edge_cases.py         │ Past date, same-day, concurrent cart add (Tests 23.1)                │
+  ├───────────────────────────────┼──────────────────────────────────────────────────────────────────────┤           
+  │ test_21_responsive.py         │ Phone/tablet layout overflow checks for dashboard + availability     │
+  └───────────────────────────────┴──────────────────────────────────────────────────────────────────────┘           
+                                                               
+  Every failing test captures a screenshot in tests/screenshots/ for visual review.                                  
+                                                               
+  What can't be fully automated (will be flagged/skipped):                                                           
+  - Cart timer expiration (Test 4.4) — would require a 15-min wait
+  - Email delivery (Tests 2.1, 16.x) — no email server access                                                        
+  - Stripe end-to-end payment (Test 8.1) — requires cart with room first; I'll chain this after cart tests
+  - Session timeout (Test 19.6) — 24-hour wait                                                                       
+  - Precise concurrency timing (Tests 23.1–23.10) — partially automated in Test 20.6  

@@ -1,0 +1,49 @@
+{
+  "cycle": 2,
+  "timestamp": "2026-05-05T00:00:00",
+  "summary": {"passed": 61, "failed": 4, "skipped": 7},
+  "failures": [
+    {
+      "test_id": "tests/test_16_notifications.py::test_16_3_mark_all_read_action",
+      "classification": "real_bug",
+      "description": "The 'Mark all read' element is still not visible/clickable after Cycle 1's fix. Playwright locator `\"a, button\".filter(has_text=\"Mark all\")` resolves to `<a href=\"#\" onclick=\"markAllRead(); return false;\" class=\"btn btn-sm btn-link text-decoration-none\">Mark all read</a>` which is NOT visible. The Cycle 1 fix claimed to remove a navbar dropdown duplicate from notifications/templates/notifications/list.html (commit a6ed73a), but the hidden element persists. Possible causes: (1) the wrong element was removed — the surviving element is the page-level `<a>` that is itself hidden (perhaps inside a collapsed div or hidden parent), not the navbar duplicate; (2) the fix was not deployed to the running service; (3) another hidden `<a>` exists in the base template that wasn't touched. The fix agent must inspect the live template files and determine why the button is still not visible — do NOT rely on fix_1.md's description of what was changed. Look at the actual current DOM.",
+      "likely_files": [
+        "notifications/templates/notifications/list.html",
+        "user_dashboard/templates/user_dashboard/dashboard_base.html",
+        "templates/base.html"
+      ],
+      "do_not_touch": ["tests/test_16_notifications.py"],
+      "cycle_1_fix_status": "Applied (commit a6ed73a) but did not resolve the failure"
+    },
+    {
+      "test_id": "tests/test_21_responsive.py::test_21_responsive_dashboard[phone-viewport0]",
+      "classification": "real_bug",
+      "description": "Dashboard horizontal overflow at 375px viewport width persists after Cycle 1's fix. The Cycle 1 fix removed an extra `</div>` from dashboard.html (commit a6ed73a) but the test still fails: `scrollWidth > clientWidth`. Possible causes: (1) the div imbalance fix did not address the actual CSS cause of overflow (a fixed-width element, a non-wrapping flex/grid row, an oversized table, or a `min-width` on a child element); (2) the fix was not deployed. The fix agent must use Playwright or manual inspection to identify which specific element overflows at 375px — inspect `document.body.scrollWidth` vs `clientWidth` and find the widest child element. Do NOT just re-examine the div count.",
+      "likely_files": [
+        "user_dashboard/templates/user_dashboard/dashboard.html",
+        "user_dashboard/templates/user_dashboard/dashboard_base.html",
+        "static/css/",
+        "static/css/custom.css"
+      ],
+      "do_not_touch": ["tests/test_21_responsive.py"],
+      "cycle_1_fix_status": "Applied (commit a6ed73a) but did not resolve the failure"
+    }
+  ],
+  "test_bugs": [
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_1_stripe_success_payment",
+      "classification": "test_bug",
+      "description": "Same root cause as Cycle 1 — Stripe Elements renders card number, expiry, and CVC in separate iframes; the test fills card number in the first iframe then looks for the expiry field in that same iframe, which does not contain it. Test requires redesign to target per-field iframes.",
+      "note": "Do NOT modify test file. Blocked on human review/redesign."
+    },
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_2_stripe_declined_card",
+      "classification": "test_bug",
+      "description": "Same root cause as test_8_1_stripe_success_payment.",
+      "note": "Do NOT modify test file. Blocked on human review/redesign."
+    }
+  ],
+  "missing_data": [],
+  "stop_loop": false,
+  "notes": "Both real_bug failures are unchanged from Cycle 1 — Cycle 1 fixes (commit a6ed73a) did not resolve either issue. Fix agent must re-investigate root causes rather than building on Cycle 1's fix descriptions."
+}

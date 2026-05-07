@@ -1,0 +1,9 @@
+{
+  "cycle_count": 0,
+  "max_cycles": 5,
+  "phase": "ready",
+  "last_run": null,
+  "failure_history": [],
+  "stall_count": 0,
+  "loop_complete": false
+}

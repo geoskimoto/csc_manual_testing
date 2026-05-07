@@ -1,0 +1,50 @@
+{
+  "cycle": 3,
+  "timestamp": "2026-05-05T00:00:00",
+  "summary": {"passed": 62, "failed": 3, "skipped": 7},
+  "failures": [
+    {
+      "test_id": "tests/test_21_responsive.py::test_21_responsive_dashboard[phone-viewport0]",
+      "classification": "real_bug",
+      "description": "Dashboard has horizontal overflow (scrollWidth > clientWidth) at 375px viewport width. This is the third consecutive cycle with this failure — Cycle 1 and Cycle 2 fix attempts (commit a6ed73a, removing a stray </div> from dashboard.html) did not resolve it. The root cause is a CSS-level overflow issue, not a div imbalance. The fix agent MUST use Playwright to programmatically find the widest child element at 375px — use document.querySelectorAll('*') and measure getBoundingClientRect().width for each element, then identify which element exceeds 375px. Likely suspects: a wide table, a non-wrapping flex row, a min-width on a card or stat block, or a fixed-px element that doesn't collapse on mobile. Do NOT re-examine div counts or template structure without first identifying the overflowing element by width measurement.",
+      "likely_files": [
+        "user_dashboard/templates/user_dashboard/dashboard.html",
+        "user_dashboard/templates/user_dashboard/dashboard_base.html",
+        "static/css/custom.css",
+        "static/css/"
+      ],
+      "do_not_touch": ["tests/test_21_responsive.py"],
+      "cycle_1_fix_status": "Applied (commit a6ed73a) — did not resolve",
+      "cycle_2_fix_status": "Re-investigated — fix not deployed or wrong root cause",
+      "fix_approach": "Step 1: Open a Playwright page, navigate to /dashboard/ at 375px. Step 2: Execute JS to find all elements with offsetWidth > 375 or getBoundingClientRect().right > 375. Step 3: Fix the CSS (add overflow-x: hidden, max-width: 100%, or responsive breakpoint) or the template (replace fixed-width element with a responsive alternative). Step 4: Re-run test_21_responsive.py to confirm fix."
+    }
+  ],
+  "test_bugs": [
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_1_stripe_success_payment",
+      "classification": "test_bug",
+      "description": "Stripe Elements renders card number, expiry, and CVC in separate iframes. The test fills card number in the first iframe, then looks for the expiry field ([placeholder*='MM / YY']) in that same iframe — it does not exist there. Test requires redesign to target per-field iframes individually.",
+      "note": "Do NOT modify test file. Blocked on human review/redesign. Same failure since Cycle 1."
+    },
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_2_stripe_declined_card",
+      "classification": "test_bug",
+      "description": "Same root cause as test_8_1_stripe_success_payment.",
+      "note": "Do NOT modify test file. Blocked on human review/redesign. Same failure since Cycle 1."
+    }
+  ],
+  "missing_data": [
+    {
+      "item": "seed_test_data could not be run",
+      "description": "sudo -u cscbooking requires a password; NOPASSWD is not configured for this command. Tests that depend on seeded data (cancellation, booking detail, individual notification mark-read) remained skipped.",
+      "action_needed": "Add NOPASSWD sudoers entry for the seed_test_data management command, or run seed manually before each cycle."
+    }
+  ],
+  "stop_loop": false,
+  "fixes_confirmed_working": [
+    "tests/test_16_notifications.py::test_16_3_mark_all_read_action — PASSING (was real_bug in cycles 1-2, fix now deployed)",
+    "tests/test_17_wallet.py::test_17_4_add_funds_entry_point — PASSING (was known real_bug, now resolved)",
+    "tests/test_19_security.py::test_19_2_member_cannot_access_admin[/billing/admin-tool/] — PASSING (was known real_bug, now resolved)"
+  ],
+  "notes": "Significant progress this cycle: three previously failing tests now pass post-deployment. One real_bug remains (dashboard phone overflow). Stall condition NOT triggered — cycle 3 real_bug set differs from cycles 1-2."
+}

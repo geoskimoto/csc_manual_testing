@@ -1,0 +1,32 @@
+{
+  "cycle": 4,
+  "timestamp": "2026-05-05T00:00:00",
+  "summary": {"passed": 62, "failed": 2, "skipped": 8, "total": 72},
+  "failures": [],
+  "test_bugs": [
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_1_stripe_success_payment",
+      "classification": "test_bug",
+      "description": "TimeoutError on Locator.fill — Stripe Elements renders card number, expiry, and CVC in separate iframes. The test attempts to fill them as plain inputs, which fails. Test needs a complete redesign to switch into each iframe before filling.",
+      "do_not_touch": ["tests/test_07_09_payment.py"]
+    },
+    {
+      "test_id": "tests/test_07_09_payment.py::test_8_2_stripe_declined_card",
+      "classification": "test_bug",
+      "description": "Same Stripe Elements iframe issue as test_8_1 — test design cannot reach card fields without switching iframe context.",
+      "do_not_touch": ["tests/test_07_09_payment.py"]
+    }
+  ],
+  "missing_data": [
+    {"test_id": "tests/test_10_cancellation.py::test_10_1_cancel_button_visible_on_booking", "reason": "Requires seeded booking data — seed_test_data blocked by sudo password"},
+    {"test_id": "tests/test_10_cancellation.py::test_10_2_refund_url_exists", "reason": "Same — requires seeded booking"},
+    {"test_id": "tests/test_10_cancellation.py::test_10_4_cancellation_policy_info_present", "reason": "Same — requires seeded booking"},
+    {"test_id": "tests/test_11_booking_history.py::test_11_2_booking_detail_loads", "reason": "Requires seeded booking detail — seed blocked"},
+    {"test_id": "tests/test_11_booking_history.py::test_11_3_booking_detail_has_dates_and_room", "reason": "Same — requires seeded booking detail"},
+    {"test_id": "tests/test_11_booking_history.py::test_11_4_booking_invoice_link", "reason": "Same — requires seeded booking detail"},
+    {"test_id": "tests/test_16_notifications.py::test_16_3_mark_all_read_action", "reason": "Requires unread notification — seed blocked"},
+    {"test_id": "tests/test_16_notifications.py::test_16_4_individual_notification_mark_read", "reason": "Same — requires unread notification"}
+  ],
+  "stop_loop": true,
+  "notes": "Zero real_bug failures this cycle. All three previously known real bugs are now resolved: test_17_4 (wallet add funds link), test_19_2 (billing admin-tool 500→403), test_21_phone (dashboard overflow). Stripe tests are test_bugs requiring iframe redesign. Skips are missing_data blocked by seed infrastructure."
+}

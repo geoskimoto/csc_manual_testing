@@ -1,0 +1,19 @@
+# Secrets
+.env
+credentials.txt
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+reports/screenshots/
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
