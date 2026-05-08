@@ -36,6 +36,7 @@ ADMIN_SEARCH_URL      = f"{BASE_URL}/admin-bookings/search-members/"
 BILLING_ADMIN_URL     = f"{BASE_URL}/billing/admin-tool/"
 BILLING_CREATE_URL    = f"{BASE_URL}/billing/admin-tool/create/"
 SUBS_ADMIN_URL        = f"{BASE_URL}/subscriptions/admin/list/"
+STUCK_PAYMENTS_URL    = f"{BASE_URL}/bookings/admin/stuck-payment-dashboard/"
 
 
 def screenshot_path(name: str) -> str:
