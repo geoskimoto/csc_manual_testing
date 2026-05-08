@@ -59,12 +59,14 @@ async def test_26_2_dashboard_loads_for_booking_admin(booking_admin_page: Page):
 
 @pytest.mark.asyncio
 async def test_26_3_member_cannot_access(alice_page: Page):
-    """Regular member is redirected away from invoice admin dashboard."""
-    await alice_page.goto(BILLING_ADMIN_URL)
+    """Regular member receives 403 or redirect when accessing invoice admin."""
+    resp = await alice_page.goto(BILLING_ADMIN_URL)
     await alice_page.wait_for_load_state("networkidle")
+    status = resp.status if resp else 0
+    url = alice_page.url
     await alice_page.screenshot(path=screenshot_path("26_3_member_blocked"))
-    assert BILLING_ADMIN_URL.split("3rdplaces.io")[1] not in alice_page.url \
-        or "/sign-in" in alice_page.url or "/dashboard" in alice_page.url
+    is_blocked = status in (403, 404) or "sign-in" in url or "login" in url or "403" in url
+    assert is_blocked, f"Regular member accessed invoice admin — status {status}, url {url}"
 
 
 # ---------------------------------------------------------------------------
@@ -116,15 +118,13 @@ async def test_26_6_create_draft_invoice(financial_admin_page: Page):
 async def test_26_7_send_invoice(financial_admin_page: Page):
     """Create a draft invoice then send it; invoice status changes to Sent."""
     await _create_draft_invoice(financial_admin_page, "Playwright Send Test Invoice")
-    # We're now on the invoice detail page — find the Send link
-    send_link = financial_admin_page.locator("a", has_text="Send").first
+    # We're now on the invoice detail page — use the exact action button text from the template
+    send_link = financial_admin_page.locator("a.btn", has_text="Send via Email").first
     await send_link.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_7_send_invoice_page"))
     content = await financial_admin_page.content()
-    # Send page should show invoice info and a submit button
     assert "Send" in content or "Email" in content
-    # Submit the send form
     await financial_admin_page.click('button[type="submit"]')
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_7b_sent_invoice"))
@@ -136,16 +136,16 @@ async def test_26_7_send_invoice(financial_admin_page: Page):
 @pytest.mark.asyncio
 async def test_26_8_record_payment(financial_admin_page: Page):
     """Create and send an invoice then record a manual payment; invoice becomes Paid."""
-    url = await _create_draft_invoice(financial_admin_page, "Playwright Payment Test Invoice")
-    # Send it first
-    send_link = financial_admin_page.locator("a", has_text="Send").first
+    await _create_draft_invoice(financial_admin_page, "Playwright Payment Test Invoice")
+    # Send it first using exact action button text from the template
+    send_link = financial_admin_page.locator("a.btn", has_text="Send via Email").first
     await send_link.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.click('button[type="submit"]')
     await financial_admin_page.wait_for_load_state("networkidle")
 
     # Now record a payment
-    payment_link = financial_admin_page.locator("a", has_text="Record Payment").first
+    payment_link = financial_admin_page.locator("a.btn", has_text="Record Payment").first
     await payment_link.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_8_record_payment_form"))
@@ -164,8 +164,8 @@ async def test_26_8_record_payment(financial_admin_page: Page):
 async def test_26_9_void_draft_invoice(financial_admin_page: Page):
     """Create a draft invoice then void it; invoice status changes to Void."""
     await _create_draft_invoice(financial_admin_page, "Playwright Void Test Invoice")
-    # Find the Void link on the detail page
-    void_link = financial_admin_page.locator("a", has_text="Void").first
+    # Find the Void link on the detail page (exact action button text from the template)
+    void_link = financial_admin_page.locator("a.btn", has_text="Void Invoice").first
     await void_link.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_9_void_invoice_page"))

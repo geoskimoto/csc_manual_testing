@@ -37,12 +37,14 @@ async def test_27_2_list_loads_for_booking_admin(booking_admin_page: Page):
 
 @pytest.mark.asyncio
 async def test_27_3_member_cannot_access(alice_page: Page):
-    """Regular member is redirected away from subscription admin list."""
-    await alice_page.goto(SUBS_ADMIN_URL)
+    """Regular member receives 403 or redirect when accessing subscription admin."""
+    resp = await alice_page.goto(SUBS_ADMIN_URL)
     await alice_page.wait_for_load_state("networkidle")
+    status = resp.status if resp else 0
+    url = alice_page.url
     await alice_page.screenshot(path=screenshot_path("27_3_member_blocked"))
-    assert SUBS_ADMIN_URL.split("3rdplaces.io")[1] not in alice_page.url \
-        or "/sign-in" in alice_page.url or "/dashboard" in alice_page.url
+    is_blocked = status in (403, 404) or "sign-in" in url or "login" in url or "403" in url
+    assert is_blocked, f"Regular member accessed subscription admin — status {status}, url {url}"
 
 
 # ---------------------------------------------------------------------------

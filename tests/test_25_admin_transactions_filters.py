@@ -37,12 +37,14 @@ async def test_25_2_transactions_loads_for_booking_admin(booking_admin_page: Pag
 
 @pytest.mark.asyncio
 async def test_25_3_member_cannot_access(alice_page: Page):
-    """Regular member is redirected away from transactions page."""
-    await alice_page.goto(ADMIN_TXNS_URL)
+    """Regular member receives 403 or redirect when accessing transactions page."""
+    resp = await alice_page.goto(ADMIN_TXNS_URL)
     await alice_page.wait_for_load_state("networkidle")
+    status = resp.status if resp else 0
+    url = alice_page.url
     await alice_page.screenshot(path=screenshot_path("25_3_member_blocked"))
-    assert ADMIN_TXNS_URL.split("3rdplaces.io")[1] not in alice_page.url \
-        or "/sign-in" in alice_page.url or "/dashboard" in alice_page.url
+    is_blocked = status in (403, 404) or "sign-in" in url or "login" in url or "403" in url
+    assert is_blocked, f"Regular member accessed transactions page — status {status}, url {url}"
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +123,8 @@ async def test_25_9_all_chip_clears_invoice_type_filter(financial_admin_page: Pa
     """'All' chip removes invoice_type from URL while keeping tab=invoices."""
     await financial_admin_page.goto(f"{INVOICES_TAB_URL}&invoice_type=booking")
     await financial_admin_page.wait_for_load_state("networkidle")
-    all_chip = financial_admin_page.locator("a.btn", has_text="All").first
+    # Scope to filter chip links that point to the invoices tab (avoids nav "Mark all read" link)
+    all_chip = financial_admin_page.locator("a.btn[href*='tab=invoices']", has_text="All").first
     await all_chip.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("25_9_all_chip"))

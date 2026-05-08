@@ -39,12 +39,14 @@ async def test_28_2_manage_bookings_loads_for_financial_admin(financial_admin_pa
 
 @pytest.mark.asyncio
 async def test_28_3_member_cannot_access_manage_bookings(alice_page: Page):
-    """Regular member is blocked from the Manage Bookings page."""
-    await alice_page.goto(ADMIN_MANAGE_URL)
+    """Regular member receives 403 or redirect when accessing Manage Bookings."""
+    resp = await alice_page.goto(ADMIN_MANAGE_URL)
     await alice_page.wait_for_load_state("networkidle")
+    status = resp.status if resp else 0
+    url = alice_page.url
     await alice_page.screenshot(path=screenshot_path("28_3_member_blocked"))
-    assert ADMIN_MANAGE_URL.split("3rdplaces.io")[1] not in alice_page.url \
-        or "/sign-in" in alice_page.url or "/dashboard" in alice_page.url
+    is_blocked = status in (403, 404) or "sign-in" in url or "login" in url or "403" in url
+    assert is_blocked, f"Regular member accessed Manage Bookings — status {status}, url {url}"
 
 
 # ---------------------------------------------------------------------------
