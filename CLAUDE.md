@@ -10,11 +10,32 @@ The booking system is a Django app deployed on a Hostinger VPS. It handles lodge
 
 ## Workflow — How This System Works
 
-1. **Run tests:** `./run_tests.sh` — seeds test data, runs the full pytest suite, pipes results through `tester_prompt.md` to a Claude analysis agent, writes `reports/analysis_YYYY-MM-DD.md`.
-2. **Read the report:** Review `reports/analysis_YYYY-MM-DD.md` for classified failures (`real_bug`, `test_bug`, `missing_data`) and recommendations.
-3. **Hand off to fix agent:** Send the report to a separate Claude agent pointed at `../csc-booking-system-test` for implementation. This session (the tester) does not fix bugs — it only classifies them.
+1. **Seed test data** — ALWAYS run this before each test suite run (see below)
+2. **Run tests:** `./run_tests.sh` — seeds test data, runs the full pytest suite, pipes results through `tester_prompt.md` to a Claude analysis agent, writes `reports/analysis_YYYY-MM-DD.md`.
+3. **Read the report:** Review `reports/analysis_YYYY-MM-DD.md` for classified failures (`real_bug`, `test_bug`, `missing_data`) and recommendations.
+4. **Hand off to fix agent:** Send the report to a separate Claude agent pointed at `../csc-booking-system-test` for implementation. This session (the tester) does not fix bugs — it only classifies them.
 
 The analysis agent instructions live in `tester_prompt.md` — edit that file to update classification rules or report format without touching the script.
+
+---
+
+## CRITICAL: Seed Before Every Test Run
+
+**Always run `seed_test_data` before each full test suite run.** Tests 2.12–2.14 consume the registration invitation tokens (solo, spouse, child). Once consumed, those tokens are marked `used=True` in the database and the view redirects to sign-in instead of showing the registration form — causing 30-second timeouts.
+
+```bash
+sudo -u cscbooking \
+  /home/cscbooking/htdocs/csc-booking-test.3rdplaces.io/venv/bin/python \
+  /home/cscbooking/htdocs/csc-booking-test.3rdplaces.io/manage.py seed_test_data
+```
+
+This is idempotent. It:
+- Resets Alice/Bob wallets to $8,000 and ensures active subscriptions
+- Ensures seeded confirmed bookings exist (required by tests 10, 11, 28)
+- Issues **fresh invitation tokens** for the registration tests, written to `/tmp/csc_reg_test_tokens.json`
+- Ensures StuckPayment fixtures exist for test_24
+
+The cleanup step in `seed_test_data` nullifies invoices against reg-test profiles before deleting them. This handles the case where test_26 (invoice admin) created test invoices against a previously-registered test user — `Invoice.customer` is `PROTECT`, so the invoices must be detached before the profile can be deleted.
 
 ---
 
@@ -22,13 +43,13 @@ The analysis agent instructions live in `tester_prompt.md` — edit that file to
 
 | File | Purpose |
 |------|---------|
-| `HUMAN_TESTER_GUIDE.md` | The source of truth for what to test — 23 sections covering every flow |
+| `HUMAN_TESTER_GUIDE.md` | The source of truth for what to test — 29 sections covering every flow |
 | `URL_REFERENCE.md` | All app URLs mapped to their Django named routes |
-| `credentials.txt` | Test accounts (Alice and Bob) — both Regular members, $8000 wallet balance |
+| `credentials.txt` | Test accounts — Alice, Bob, booking_admin, financial_admin |
 | `run_tests.sh` | Primary entry point — seeds, tests, and analyzes in one command |
 | `tester_prompt.md` | Instructions given to the Claude analysis agent after each run |
 | `tests/helpers.py` | Shared constants: BASE_URL, all page URLs, credentials, login helper |
-| `tests/conftest.py` | Pytest fixtures: `browser`, `page`, `alice_page`, `bob_page` |
+| `tests/conftest.py` | Pytest fixtures: `page`, `alice_page`, `bob_page`, `booking_admin_page`, `financial_admin_page` |
 | `pytest.ini` | Runs with `--html=reports/report.html` and `--json-report-file=reports/report.json` |
 | `reports/` | Generated after each run — HTML report for human review, JSON for CI |
 | `tests/screenshots/` | PNG captured on every test for visual evidence |
@@ -37,13 +58,21 @@ The analysis agent instructions live in `tester_prompt.md` — edit that file to
 
 ## Test Accounts
 
-- **Alice** `alice.tester@csc-test.local` / `TestPass99!` — Regular member, wallet $8000, subscription active to 2027-04-19
-- **Bob** `bob.tester@csc-test.local` / `TestPass99!` — Same setup as Alice
+| Account | Email | Password | Role |
+|---------|-------|----------|------|
+| Alice | `alice.tester@csc-test.local` | `TestPass99!` | Regular member, $8,000 wallet, subscription active to 2027 |
+| Bob | `bob.tester@csc-test.local` | `TestPass99!` | Same setup as Alice |
+| Booking Admin | `booking.admin@csc-test.local` | `AdminPass99!` | Booking + financial admin tools, no `/admin/` |
+| Financial Admin | `financial.admin@csc-test.local` | `AdminPass99!` | All booking admin access + `/admin/` |
 
-**Missing accounts needed for full test coverage:**
-- Admin/booking administrator account (needed for Tests 12.x, 13.x, 23.x)
-- Financial administrator account (needed for Tests 15.x)
-- Member without active subscription (needed for Test 14.2, 20.9)
+Registration test accounts (created/consumed per run by seed_test_data):
+
+| Label | Email |
+|-------|-------|
+| validation | `reg.validation@csc-test.local` |
+| solo | `reg.solo@csc-test.local` |
+| spouse | `reg.spouse@csc-test.local` |
+| child | `reg.child@csc-test.local` |
 
 ---
 
@@ -62,38 +91,69 @@ The site uses non-standard URL patterns — do not guess. Always consult `URL_RE
 | Profile | `/dashboard/profile/` |
 | Wallet | `/dashboard/wallet/` |
 | Admin bookings | `/admin-bookings/` |
+| Manage bookings | `/admin-bookings/manage-bookings/` |
+| Transactions | `/admin-bookings/transactions/` |
+| Invoice admin | `/billing/admin-tool/` |
+| Subscription admin | `/subscriptions/admin/list/` |
+| Stuck payments | `/bookings/admin/stuck-payment-dashboard/` |
 
 Login form fields: `name="email"` and `name="password"` (not `name="login"`).
 
 ---
 
+## Access Control Behavior
+
+**Important:** Django's `PermissionDenied` exception always returns a **403 response** — the URL does NOT change. It does NOT redirect to login. This affects all "member blocked" test assertions:
+
+```python
+resp = await alice_page.goto(URL)
+status = resp.status if resp else 0
+url = alice_page.url
+is_blocked = status in (403, 404) or "sign-in" in url or "login" in url or "403" in url
+assert is_blocked
+```
+
+Do not assert `"sign-in" in url` alone — that will fail for 403 responses (URL stays on the original page).
+
+Key decorators/mixins and their behavior:
+- `@financial_administrator_required` — raises PermissionDenied (403) for all non-FA users, including anonymous. No login redirect.
+- `BookingAdminRequiredMixin` — grants access to both Booking Admins and Financial Admins. Raises 403 for members and anonymous users.
+
+---
+
 ## Test Coverage Status
 
-_Last updated from `reports/analysis_2026-05-05.md`: 68 passed / 2 failed (test bugs) / 2 skipped / 72 total_
+_173 tests collected as of 2026-05-08. Last full run: 164 passed / 3 failed (seed issue, now fixed) / 6 skipped._
 
-| Section | Tests Written | Status |
-|---------|--------------|--------|
-| 1 — Environment / Login | `test_01_environment.py` | Passing |
-| 3 — Dashboard | `test_03_dashboard.py` | Passing |
-| 4 — Booking (Individual) | `test_04_booking_individual.py` | Passing |
-| 7–9 — Payments | `test_07_09_payment.py` | 2 test bugs in Stripe iframe locator (see Known Issues) |
-| 10 — Cancellation/Refund | `test_10_cancellation.py` | 1 skip — cancellation policy text not visible for seeded booking state |
-| 11 — Booking History | `test_11_booking_history.py` | Written |
-| 14 — Subscriptions | `test_14_subscriptions.py` | Written |
-| 16 — Notifications | `test_16_notifications.py` | 1 skip — no per-notification mark-read link in current UI |
-| 17 — Wallet Operations | `test_17_wallet.py` | Passing |
-| 18 — Profile/Family Mgmt | `test_18_profile.py` | Written |
-| 19 — Security | `test_19_security.py` | Passing |
-| 20 — Edge Cases | `test_20_edge_cases.py` | Passing |
-| 21 — Responsive | `test_21_responsive.py` | Passing |
-| 2 — Registration / Onboarding | Not yet written | |
-| 5 — Family Booking | Not yet written | Needs family member test data |
-| 6 — Guest Booking | Not yet written | |
-| 12 — Admin Booking | Not yet written | Needs admin credentials |
-| 13 — Admin Manage | Not yet written | Needs admin credentials |
-| 15 — Invoicing | Not yet written | Needs financial admin credentials |
-| 22 — Cross-Browser | Not yet written | Requires `playwright install firefox webkit` |
-| 23 — Race Conditions | Partial (Test 20.6) | Needs precise timing; some require Django shell access |
+| Section | File | Tests | Status |
+|---------|------|-------|--------|
+| 1 — Environment / Login | `test_01_environment.py` | 4 | Passing |
+| 2 — Registration / Onboarding | `test_02_registration.py` | 16 | Passing — **tokens consumed each run; seed required** |
+| 3 — Dashboard | `test_03_dashboard.py` | 5 | Passing |
+| 4 — Booking (Individual) | `test_04_booking_individual.py` | 6 | Passing |
+| 5 — Family Booking | `test_05_family_booking.py` | 5 | Written |
+| 6 — Guest Booking | `test_06_guest_booking.py` | 4 | Written |
+| 7–9 — Payments | `test_07_09_payment.py` | 5 | 2 test bugs in Stripe iframe locator (see Known Issues) |
+| 10 — Cancellation/Refund | `test_10_cancellation.py` | 4 | 1 skip — cancellation policy text not visible for seeded state |
+| 11 — Booking History | `test_11_booking_history.py` | 5 | Passing |
+| 12 — Admin Booking | `test_12_admin_booking.py` | 8 | Passing |
+| 13 — Admin Manage | `test_13_admin_manage.py` | 6 | Passing |
+| 14 — Subscriptions | `test_14_subscriptions.py` | 6 | Passing |
+| 15 — Invoicing | `test_15_invoicing.py` | 7 | Passing |
+| 16 — Notifications | `test_16_notifications.py` | 6 | 1 skip — no per-notification mark-read link in current UI |
+| 17 — Wallet Operations | `test_17_wallet.py` | 8 | Passing |
+| 18 — Profile/Family Mgmt | `test_18_profile.py` | 8 | Passing |
+| 19 — Security | `test_19_security.py` | 4 | Passing |
+| 20 — Edge Cases | `test_20_edge_cases.py` | 3 | Passing |
+| 21 — Responsive | `test_21_responsive.py` | 2 | Passing |
+| 22 — Cross-Browser | `test_22_cross_browser.py` | 5 | Skips gracefully if Firefox/WebKit not installed |
+| 23 — Race Conditions | `test_23_race_conditions.py` | 3 | Passing |
+| 24 — Stuck Payments Dashboard | `test_24_stuck_payments.py` | 9 | Passing — Financial Admin only (403 for all others) |
+| 25 — Admin Transactions Filters | `test_25_admin_transactions_filters.py` | 9 | Passing |
+| 26 — Invoice Admin | `test_26_invoice_admin.py` | 9 | Passing — creates test invoices; seed cleans them up |
+| 27 — Subscription Admin | `test_27_subscription_admin.py` | 8 | Passing |
+| 28 — Admin Refund Modal | `test_28_admin_refund.py` | 8 | Passing — does NOT submit refund (protects Alice's seeded booking) |
+| 29 — Financial Dashboard | not written | — | Not planned |
 
 ---
 
@@ -103,41 +163,52 @@ _Last updated from `reports/analysis_2026-05-05.md`: 68 passed / 2 failed (test 
 
 - **`test_8_1_stripe_success_payment`, `test_8_2_stripe_declined_card`:** `_fill_stripe_fields()` uses `locator("input")` which resolves to 6 elements inside the Stripe iframe (strict mode violation). Fix: use `card_frame.get_by_role("textbox", name="Credit or debit card number")` for card number, and equivalent targeted selectors for expiry/CVV.
 
-### Missing Data / Skips
+### Permanent / Intentional Skips
 
 - **`test_10_4_cancellation_policy_info_present`:** Cancellation policy text not visible for the seeded booking's state. Needs a booking seeded in a state where policy text renders.
-- **`test_16_4_individual_notification_mark_read`:** Notifications UI only exposes bulk "Mark All Read" — no per-notification mark-read link present. Product decision needed: missing feature or acceptable behavior?
+- **`test_16_4_individual_notification_mark_read`:** Notifications UI only exposes bulk "Mark All Read" — no per-notification mark-read link. Product decision needed.
+- **Cross-browser tests (test_22):** Skip if Firefox/WebKit binaries are not installed. Run `sudo playwright install firefox webkit && sudo playwright install-deps` to enable.
 
-### Previously Fixed (no longer tracked)
+### Side Effects Between Test Sections
 
-- Phone layout overflow at 375px — fixed
-- `/billing/admin-tool/` returning 500 instead of 403 — fixed
-- Wallet page missing Add Funds UI link — fixed
+- **test_26 (Invoice Admin)** creates invoices against real customer profiles in the DB. If those customers happen to be previously-registered reg-test users, `seed_test_data` cleanup will fail with `ProtectedError` unless the invoices are detached first. This is handled by the seed command (see `_ensure_registration_tokens`).
+- **test_28 (Admin Refund)** intentionally does NOT submit the refund form. Submitting would cancel Alice's seeded future booking and break tests 10, 11.
 
 ---
 
-## What's Needed to Complete the Suite
+## Selector Patterns and Gotchas
 
-1. **Admin credentials** — add to `credentials.txt` and `helpers.py` for Tests 12–13, 15
-2. **No-subscription member account** — for Tests 14.2, 20.9
-3. **Availability form field names** — need to inspect `/bookings/check_availability/` page DOM to find date input field names and submit button selector (likely a JS-rendered date picker, not a plain `<input type="date">`)
-4. **Cart pre-fill helper** — a reusable fixture that logs in, searches availability, adds a room to cart, so payment tests (7–9) can run end-to-end
-5. **Firefox/WebKit browsers** — `playwright install firefox webkit` for cross-browser section
-6. **Stripe test cards** — already configured in Stripe test mode; use `4242 4242 4242 4242` (success), `4000 0000 0000 0002` (decline)
+- **Invoice admin action buttons**: Use `a.btn[has_text="Send via Email"]`, `a.btn[has_text="Record Payment"]`, `a.btn[has_text="Void Invoice"]` — scoped to `a.btn` to avoid matching nav dropdown items with similar text (e.g., "Send Invitation").
+- **Invoice filter chip "All"**: Use `a.btn[href*='tab=invoices'][has_text='All']` — scoped to avoid matching the navbar "Mark all read" link which also renders as `a.btn`.
+- **Select2 customer field**: Use `page.select_option('select[name="customer"]', index=1)` on the underlying `<select>` element to bypass the Select2 overlay.
+- **Invoice formset (create)**: The `LineItemFormSet` has `extra=3` empty rows. Before submitting, set `form-TOTAL_FORMS` to `"1"` via `page.evaluate()` to prevent empty-row validation errors.
+- **Subscription details modal**: Triggered by `.view-details-btn` via AJAX. Wait for `#subscriptionDetailsModal.show` (not just `#subscriptionDetailsModal`).
+- **Admin refund modal**: Triggered by `.refund-booking-btn`. Wait for `#refundBookingModal.show`.
 
 ---
 
 ## Running Tests
 
 ```bash
+# Always seed first, then run
+sudo -u cscbooking \
+  /home/cscbooking/htdocs/csc-booking-test.3rdplaces.io/venv/bin/python \
+  /home/cscbooking/htdocs/csc-booking-test.3rdplaces.io/manage.py seed_test_data
+
+cd /home/geoskimoto/projects/csc_manual_testing
+.venv/bin/python -m pytest tests/ -v --tb=short
+```
+
+Or use the all-in-one script (seeds + runs + analyzes):
+
+```bash
 ./run_tests.sh
 ```
 
-Seeds test data, runs the full suite, invokes a Claude analysis agent, and writes `reports/analysis_YYYY-MM-DD.md`. The HTML report is at `reports/report.html`.
-
 Run a single section manually:
+
 ```bash
-.venv/bin/pytest tests/test_01_environment.py -v
+.venv/bin/pytest tests/test_02_registration.py -v
 ```
 
 ---
@@ -173,7 +244,7 @@ All loop state lives in `cycle/state.json`:
 
 ### Pre-Flight: Seed Test Data
 
-Before running pytest, always seed test data. The staging site runs under the `cscbooking` user with its own SQLite — seed that database, not the geoskimoto dev copy:
+Before running pytest, always seed test data. The staging site runs under the `cscbooking` user with its own PostgreSQL — seed that database, not the geoskimoto dev copy:
 
 ```bash
 sudo -u cscbooking \
@@ -181,7 +252,7 @@ sudo -u cscbooking \
   /home/cscbooking/htdocs/csc-booking-test.3rdplaces.io/manage.py seed_test_data
 ```
 
-This is idempotent. It ensures Alice has bookings, a $8,000 wallet, and an unread notification — prerequisites for sections 10, 11, 16, and 17.
+This is idempotent. It ensures Alice has bookings, a $8,000 wallet, and an unread notification — prerequisites for sections 10, 11, 16, and 17. It also issues fresh registration tokens consumed by tests 2.12–2.14.
 
 ### Running Tests
 
@@ -200,11 +271,6 @@ After parsing `reports/report.json`, classify each failure. Do NOT fix test code
 | `real_bug` | The site behavior is wrong — the test is correct | Include in handoff for fix agent |
 | `test_bug` | The test assertion is wrong — the site behavior is acceptable | Document, but do NOT modify the test; report to user |
 | `missing_data` | Test requires DB state that seed_test_data didn't create | Document the gap; do NOT skip |
-
-**Known real bugs (always classify as `real_bug`, never `test_bug`):**
-- `test_17_4_add_funds_entry_point` — wallet page has no Add Funds UI link
-- `test_19_2_member_cannot_access_admin[/billing/admin-tool/]` — returns 500 instead of 403
-- `test_21_responsive_dashboard[phone-viewport0]` — dashboard overflow at 375px
 
 ### Writing the Handoff File
 
