@@ -172,3 +172,44 @@ async def test_29_8_location_filter_applies_to_map(alice_map_page: Page):
         "#lodge-map-host hidden after applying filter"
     filtered_count = await alice_map_page.locator('.lm-room').count()
     assert filtered_count >= 0, "Unexpected negative room count after filter"
+
+
+@pytest.mark.asyncio
+async def test_29_9_keyboard_enter_opens_popover(alice_map_page: Page):
+    """Pressing Enter on a focused available room opens the popover."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    await alice_map_page.evaluate("""
+        const room = document.querySelector('.lm-room[data-state="available"]');
+        if (room) room.focus();
+    """)
+    await alice_map_page.wait_for_timeout(300)
+
+    await alice_map_page.keyboard.press('Enter')
+    await alice_map_page.wait_for_timeout(600)
+
+    await alice_map_page.screenshot(path=screenshot_path("29_9_keyboard_enter"))
+
+    popover = alice_map_page.locator('#lodge-map-popover')
+    assert await popover.is_visible(), "Popover did not open on keyboard Enter"
+
+
+@pytest.mark.asyncio
+async def test_29_10_keyboard_escape_closes_popover(alice_map_page: Page):
+    """Pressing Escape while popover is open closes it."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    await available.first.click()
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='visible')
+
+    await alice_map_page.keyboard.press('Escape')
+    await alice_map_page.wait_for_timeout(600)
+
+    await alice_map_page.screenshot(path=screenshot_path("29_10_escape_closes"))
+
+    popover = alice_map_page.locator('#lodge-map-popover')
+    assert not await popover.is_visible(), "Popover still visible after pressing Escape"
