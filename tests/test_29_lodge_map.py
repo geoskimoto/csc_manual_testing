@@ -342,3 +342,71 @@ async def test_29_13_family_member_booking_via_map(alice_page: Page):
     content = await alice_page.content()
     assert any(kw in content.lower() for kw in ["cart", "added", "reserved", "badge"]), \
         "No confirmation after booking a different club member via map"
+
+
+@pytest.mark.asyncio
+async def test_29_14_guest_booking_via_map(alice_page: Page):
+    """Alice books a Private room via the map and assigns a guest occupant."""
+    await _search_and_enter_map(alice_page)
+
+    private_room_ids = ["R1", "R2", "R3"]
+    clicked_private = False
+    for rid in private_room_ids:
+        room = alice_page.locator(f'.lm-room[data-room="{rid}"]')
+        if await room.count() > 0:
+            state = await room.get_attribute("data-state")
+            if state == "available":
+                await room.click()
+                await alice_page.wait_for_selector('#lodge-map-popover', state='visible')
+                clicked_private = True
+                break
+
+    if not clicked_private:
+        pytest.skip("No available Private room (R1/R2/R3) found for guest booking test")
+
+    select = alice_page.locator('#lodge-map-popover-body select.member-select')
+    opts = await select.locator('option').all()
+    guest_val = None
+    for opt in opts:
+        val = await opt.get_attribute("value")
+        disabled = await opt.get_attribute("disabled")
+        if val and val.startswith("guest_") and disabled is None:
+            guest_val = val
+            break
+
+    if guest_val is None:
+        pytest.skip("No guest option found in Private room dropdown")
+
+    await select.select_option(value=guest_val)
+    await alice_page.wait_for_timeout(300)
+    await alice_page.click('#lodge-map-popover-done')
+    await alice_page.wait_for_selector('#lodge-map-popover', state='hidden')
+
+    guest_name_input = alice_page.locator('input[name="guest_name_1"]')
+    if await guest_name_input.count() > 0:
+        await guest_name_input.fill("Test Guest")
+        age_input = alice_page.locator('input[name="guest_age_1"]')
+        if await age_input.count() > 0:
+            await age_input.fill("30")
+
+    await alice_page.evaluate(f"""
+        const form = document.querySelector('form[action="/bookings/add_accommodations_to_cart/"]');
+        if (form) {{
+            const ci = form.querySelector('input[name="check_in_date"]');
+            const co = form.querySelector('input[name="check_out_date"]');
+            if (ci) ci.value = '{CHECKIN_DISPLAY}';
+            if (co) co.value = '{CHECKOUT_DISPLAY}';
+        }}
+    """)
+
+    add_btn = alice_page.locator("button").filter(has_text="Add Selected to Cart")
+    if await add_btn.count() == 0:
+        pytest.skip("Add Selected to Cart button not found")
+
+    await add_btn.click()
+    await alice_page.wait_for_load_state("networkidle")
+    await alice_page.screenshot(path=screenshot_path("29_14_guest_booking"))
+
+    content = await alice_page.content()
+    assert any(kw in content.lower() for kw in ["cart", "added", "reserved", "badge"]), \
+        "No confirmation after guest booking via map"
