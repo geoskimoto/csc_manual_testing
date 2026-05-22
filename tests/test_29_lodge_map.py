@@ -288,3 +288,57 @@ async def test_29_12_full_map_booking_to_cart(alice_page: Page):
     content = await alice_page.content()
     assert any(kw in content.lower() for kw in ["cart", "added", "reserved", "badge"]), \
         "No confirmation of cart addition found after map booking"
+
+
+@pytest.mark.asyncio
+async def test_29_13_family_member_booking_via_map(alice_page: Page):
+    """Alice selects a different club member (not herself) as occupant via the map."""
+    await _search_and_enter_map(alice_page)
+
+    available = alice_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms on map")
+
+    await available.first.click()
+    await alice_page.wait_for_selector('#lodge-map-popover', state='visible')
+
+    select = alice_page.locator('#lodge-map-popover-body select.member-select')
+    opts = await select.locator('option').all()
+
+    selectable = []
+    for opt in opts:
+        val = await opt.get_attribute("value")
+        disabled = await opt.get_attribute("disabled")
+        if val and val.strip() and disabled is None:
+            selectable.append(val)
+
+    if len(selectable) < 2:
+        pytest.skip("Only one selectable occupant in dropdown — cannot test other-member booking")
+
+    other_member = selectable[1]
+    await select.select_option(value=other_member)
+    await alice_page.wait_for_timeout(300)
+    await alice_page.click('#lodge-map-popover-done')
+    await alice_page.wait_for_selector('#lodge-map-popover', state='hidden')
+
+    await alice_page.evaluate(f"""
+        const form = document.querySelector('form[action="/bookings/add_accommodations_to_cart/"]');
+        if (form) {{
+            const ci = form.querySelector('input[name="check_in_date"]');
+            const co = form.querySelector('input[name="check_out_date"]');
+            if (ci) ci.value = '{CHECKIN_DISPLAY}';
+            if (co) co.value = '{CHECKOUT_DISPLAY}';
+        }}
+    """)
+
+    add_btn = alice_page.locator("button").filter(has_text="Add Selected to Cart")
+    if await add_btn.count() == 0:
+        pytest.skip("Add Selected to Cart button not found")
+
+    await add_btn.click()
+    await alice_page.wait_for_load_state("networkidle")
+    await alice_page.screenshot(path=screenshot_path("29_13_family_member"))
+
+    content = await alice_page.content()
+    assert any(kw in content.lower() for kw in ["cart", "added", "reserved", "badge"]), \
+        "No confirmation after booking a different club member via map"
