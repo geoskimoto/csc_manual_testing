@@ -26,7 +26,7 @@ Builds on the existing `alice_page` fixture (authenticated Alice session):
 
 ---
 
-## Test Inventory (~14 tests)
+## Test Inventory (~15 tests)
 
 ### Map Rendering
 
@@ -64,8 +64,9 @@ Builds on the existing `alice_page` fixture (authenticated Alice session):
 | Test ID | What it verifies |
 |---------|-----------------|
 | `test_29_12_full_map_booking_to_cart` | Full flow: toggle map → click room → assign Alice → Done → Add to Cart → `CART_URL` shows a booking |
-| `test_29_13_family_member_booking_via_map` | Same flow with a family member (not Alice) selected as occupant in the popover |
-| `test_29_14_ajax_date_change_closes_popover` | Opening popover then changing dates via AJAX closes the popover and rebuilds the map |
+| `test_29_13_family_member_booking_via_map` | Same flow but select a different club member (e.g., Bob) as occupant in the popover dropdown |
+| `test_29_14_guest_booking_via_map` | Same flow but target a Private room (`data-room="R1/R2/R3"`) and select a guest occupant |
+| `test_29_15_ajax_date_change_closes_popover` | Opening popover then changing dates via AJAX closes the popover and rebuilds the map |
 
 ---
 
@@ -93,8 +94,8 @@ Screenshots saved for every test via `screenshot_path()`.
 ## Key Gotchas
 
 - **DOM movement**: the `.room-card` is physically moved into `#lodge-map-popover-body` when a room is clicked. Select the occupant via `#lodge-map-popover-body select.member-select`, not from the card grid.
-- **Guest booking**: only Private rooms (`data-room="R1"`, `R2`, `R3`) accept guest occupants. Target these specifically for `test_29_13`.
-- **Family member booking**: Alice must have at least one family member profile set up in test data (covered by `seed_test_data`).
+- **Guest booking** (`test_29_14`): only Private rooms (`data-room="R1"`, `R2`, `R3`) accept guest occupants. Target these specifically.
+- **Family member booking** (`test_29_13`): "family member" means selecting any other club member (e.g., Bob) from the occupant dropdown — not a dependent. No extra seed setup required; Bob already exists.
 - **Unavailable room clicks**: assert popover is NOT visible after click — don't assert an error or redirect.
 - **Location filter + map**: the filter hides/shows `.room-card` elements; the map reflects this by updating which `.lm-room` elements are rendered or marked unavailable.
 
