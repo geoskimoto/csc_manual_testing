@@ -410,3 +410,35 @@ async def test_29_14_guest_booking_via_map(alice_page: Page):
     content = await alice_page.content()
     assert any(kw in content.lower() for kw in ["cart", "added", "reserved", "badge"]), \
         "No confirmation after guest booking via map"
+
+
+@pytest.mark.asyncio
+async def test_29_15_ajax_date_change_closes_popover(alice_page: Page):
+    """Changing dates while popover is open closes the popover and rebuilds the map."""
+    await _search_and_enter_map(alice_page)
+
+    available = alice_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms on map")
+
+    await available.first.click()
+    await alice_page.wait_for_selector('#lodge-map-popover', state='visible')
+    await alice_page.screenshot(path=screenshot_path("29_15_before_date_change"))
+
+    new_checkin  = (date.today() + timedelta(days=60)).strftime("%Y-%m-%d")
+    new_checkout = (date.today() + timedelta(days=62)).strftime("%Y-%m-%d")
+    await alice_page.fill('input[name="check_in_date"]', new_checkin)
+    await alice_page.fill('input[name="check_out_date"]', new_checkout)
+    await alice_page.evaluate(
+        "document.querySelector('form[action=\"/bookings/check_availability/\"]').submit()"
+    )
+    await alice_page.wait_for_load_state("networkidle")
+    await alice_page.wait_for_timeout(1500)
+
+    await alice_page.screenshot(path=screenshot_path("29_15_after_date_change"))
+
+    popover = alice_page.locator('#lodge-map-popover')
+    assert not await popover.is_visible(), \
+        "Popover still visible after changing dates — should have closed on rebuild"
+
+    assert "500" not in await alice_page.title(), "Server error after date change"
