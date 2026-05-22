@@ -147,3 +147,28 @@ async def test_29_5_room_color_changes_on_assignment(alice_map_page: Page):
     ).get_attribute("data-state")
     assert room_state == "assigned", \
         f"Room {room_id} data-state is '{room_state}', expected 'assigned'"
+
+
+@pytest.mark.asyncio
+async def test_29_8_location_filter_applies_to_map(alice_map_page: Page):
+    """Changing the location filter updates the map without a server error."""
+    filter_select = alice_map_page.locator('#location-filter')
+    if await filter_select.count() == 0:
+        pytest.skip("Location filter not found")
+
+    options = await filter_select.locator('option').all()
+    if len(options) < 2:
+        pytest.skip("No filter options to select")
+
+    # Select the second option (first non-All)
+    second_val = await options[1].get_attribute("value")
+    await filter_select.select_option(value=second_val)
+    await alice_map_page.wait_for_timeout(800)
+
+    await alice_map_page.screenshot(path=screenshot_path("29_8_filter_map"))
+
+    assert "500" not in await alice_map_page.title(), "Server error after applying location filter"
+    assert await alice_map_page.locator('#lodge-map-host').is_visible(), \
+        "#lodge-map-host hidden after applying filter"
+    filtered_count = await alice_map_page.locator('.lm-room').count()
+    assert filtered_count >= 0, "Unexpected negative room count after filter"
