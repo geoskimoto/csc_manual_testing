@@ -123,7 +123,7 @@ Key decorators/mixins and their behavior:
 
 ## Test Coverage Status
 
-_173 tests collected as of 2026-05-08. Last full run: 164 passed / 3 failed (seed issue, now fixed) / 6 skipped._
+_188 tests collected as of 2026-05-22. Last full run: see latest reports/analysis_*.md._
 
 | Section | File | Tests | Status |
 |---------|------|-------|--------|
@@ -153,7 +153,8 @@ _173 tests collected as of 2026-05-08. Last full run: 164 passed / 3 failed (see
 | 26 — Invoice Admin | `test_26_invoice_admin.py` | 9 | Passing — creates test invoices; seed cleans them up |
 | 27 — Subscription Admin | `test_27_subscription_admin.py` | 8 | Passing |
 | 28 — Admin Refund Modal | `test_28_admin_refund.py` | 8 | Passing — does NOT submit refund (protects Alice's seeded booking) |
-| 29 — Financial Dashboard | not written | — | Not planned |
+| 29 — Lodge Map Booking | `test_29_lodge_map.py` | 15 | Written — map rendering, popover interactions, keyboard, filter, full booking flows (individual, other member, guest), AJAX date rebuild. 29_13 and 29_14 skip if multi-member or guest options absent (missing_data) |
+| 30 — Financial Dashboard | not written | — | Not planned |
 
 ---
 
