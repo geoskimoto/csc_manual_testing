@@ -54,3 +54,58 @@ async def test_29_3_map_legend_visible(alice_map_page: Page):
     swatches = alice_map_page.locator('.lm-swatch')
     count = await swatches.count()
     assert count >= 2, f"Expected at least 2 legend swatches, found {count}"
+
+
+@pytest.mark.asyncio
+async def test_29_4_click_room_opens_popover(alice_map_page: Page):
+    """Clicking an available room reveals the popover with a room title."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    await available.first.click()
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='visible')
+    await alice_map_page.screenshot(path=screenshot_path("29_4_popover_open"))
+
+    popover = alice_map_page.locator('#lodge-map-popover')
+    assert await popover.is_visible(), "Popover did not appear after clicking room"
+
+    title = alice_map_page.locator('#lodge-map-popover-title')
+    title_text = await title.text_content()
+    assert title_text and title_text.strip(), "Popover title is empty"
+
+
+@pytest.mark.asyncio
+async def test_29_6_popover_done_closes(alice_map_page: Page):
+    """Done button closes the popover."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    await available.first.click()
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='visible')
+
+    await alice_map_page.click('#lodge-map-popover-done')
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='hidden')
+    await alice_map_page.screenshot(path=screenshot_path("29_6_done_closes"))
+
+    assert not await alice_map_page.locator('#lodge-map-popover').is_visible(), \
+        "Popover still visible after clicking Done"
+
+
+@pytest.mark.asyncio
+async def test_29_7_popover_x_closes(alice_map_page: Page):
+    """X (close) button closes the popover."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    await available.first.click()
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='visible')
+
+    await alice_map_page.click('#lodge-map-popover-close')
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='hidden')
+    await alice_map_page.screenshot(path=screenshot_path("29_7_x_closes"))
+
+    assert not await alice_map_page.locator('#lodge-map-popover').is_visible(), \
+        "Popover still visible after clicking X"
