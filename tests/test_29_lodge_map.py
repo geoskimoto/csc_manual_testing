@@ -213,3 +213,25 @@ async def test_29_10_keyboard_escape_closes_popover(alice_map_page: Page):
 
     popover = alice_map_page.locator('#lodge-map-popover')
     assert not await popover.is_visible(), "Popover still visible after pressing Escape"
+
+
+@pytest.mark.asyncio
+async def test_29_11_unavailable_room_not_clickable(alice_map_page: Page):
+    """Unavailable rooms have tabindex='-1' and clicking them does not open the popover."""
+    unavailable = alice_map_page.locator('.lm-room[data-state="unavailable"]')
+    if await unavailable.count() == 0:
+        pytest.skip("No unavailable rooms present on map for this date range")
+
+    first_unavail = unavailable.first
+    tabindex = await first_unavail.get_attribute("tabindex")
+    assert tabindex == "-1", \
+        f"Unavailable room tabindex is '{tabindex}', expected '-1'"
+
+    await first_unavail.click(force=True)
+    await alice_map_page.wait_for_timeout(600)
+
+    await alice_map_page.screenshot(path=screenshot_path("29_11_unavailable"))
+
+    popover = alice_map_page.locator('#lodge-map-popover')
+    assert not await popover.is_visible(), \
+        "Popover opened after clicking an unavailable room — should be blocked"
