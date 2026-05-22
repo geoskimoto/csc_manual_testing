@@ -26,3 +26,31 @@ async def _search_and_enter_map(page: Page) -> None:
     await page.click('#view-toggle-map')
     await page.wait_for_selector('#lodge-map-host', state='visible')
     await page.wait_for_timeout(1000)
+
+
+@pytest.mark.asyncio
+async def test_29_1_map_view_toggle(alice_map_page: Page):
+    """Clicking Map View shows the SVG host and hides the card grid."""
+    await alice_map_page.screenshot(path=screenshot_path("29_1_map_toggle"))
+    map_host = alice_map_page.locator('#lodge-map-host')
+    assert await map_host.is_visible(), "#lodge-map-host not visible after toggling map view"
+    assert "500" not in await alice_map_page.title(), "Server error on availability page"
+
+
+@pytest.mark.asyncio
+async def test_29_2_map_renders_rooms(alice_map_page: Page):
+    """Map SVG renders at least one available room."""
+    await alice_map_page.screenshot(path=screenshot_path("29_2_map_rooms"))
+    rooms = alice_map_page.locator('.lm-room')
+    assert await rooms.count() > 0, "No .lm-room elements found in map SVG"
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    assert await available.count() > 0, "No available rooms shown on map"
+
+
+@pytest.mark.asyncio
+async def test_29_3_map_legend_visible(alice_map_page: Page):
+    """Map legend swatches are present."""
+    await alice_map_page.screenshot(path=screenshot_path("29_3_legend"))
+    swatches = alice_map_page.locator('.lm-swatch')
+    count = await swatches.count()
+    assert count >= 2, f"Expected at least 2 legend swatches, found {count}"
