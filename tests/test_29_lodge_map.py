@@ -109,3 +109,41 @@ async def test_29_7_popover_x_closes(alice_map_page: Page):
 
     assert not await alice_map_page.locator('#lodge-map-popover').is_visible(), \
         "Popover still visible after clicking X"
+
+
+@pytest.mark.asyncio
+async def test_29_5_room_color_changes_on_assignment(alice_map_page: Page):
+    """Selecting an occupant in the popover changes the room's visual state to assigned."""
+    available = alice_map_page.locator('.lm-room[data-state="available"]')
+    if await available.count() == 0:
+        pytest.skip("No available rooms found on map")
+
+    first_room = available.first
+    room_id = await first_room.get_attribute("data-room")
+
+    await first_room.click()
+    await alice_map_page.wait_for_selector('#lodge-map-popover', state='visible')
+
+    select = alice_map_page.locator('#lodge-map-popover-body select.member-select')
+    opts = await select.locator('option').all()
+    chosen = None
+    for opt in opts:
+        val = await opt.get_attribute("value")
+        disabled = await opt.get_attribute("disabled")
+        if val and val.strip() and disabled is None:
+            chosen = val
+            break
+
+    if chosen is None:
+        pytest.skip("No selectable occupant found in popover dropdown")
+
+    await select.select_option(value=chosen)
+    await alice_map_page.wait_for_timeout(600)
+
+    await alice_map_page.screenshot(path=screenshot_path("29_5_color_change"))
+
+    room_state = await alice_map_page.locator(
+        f'.lm-room[data-room="{room_id}"]'
+    ).get_attribute("data-state")
+    assert room_state == "assigned", \
+        f"Room {room_id} data-state is '{room_state}', expected 'assigned'"
