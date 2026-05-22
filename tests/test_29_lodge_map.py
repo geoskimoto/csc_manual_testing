@@ -138,7 +138,13 @@ async def test_29_5_room_color_changes_on_assignment(alice_map_page: Page):
         pytest.skip("No selectable occupant found in popover dropdown")
 
     await select.select_option(value=chosen)
-    await alice_map_page.wait_for_timeout(600)
+
+    # Deterministic wait — poll until JS flips data-state, up to 5s
+    await alice_map_page.wait_for_function(
+        f"""document.querySelector('.lm-room[data-room="{room_id}"]')
+            ?.getAttribute('data-state') === 'assigned'""",
+        timeout=5000
+    )
 
     await alice_map_page.screenshot(path=screenshot_path("29_5_color_change"))
 
