@@ -79,15 +79,23 @@ async def test_31_6_dashboard_club_calendar_renders(alice_page: Page):
 
 @pytest.mark.asyncio
 async def test_31_7_dashboard_club_calendar_fullcalendar(alice_page: Page):
-    """FullCalendar initialises inside the dashboard club events div."""
+    """FullCalendar initialises inside the dashboard club events div.
+
+    FullCalendar is loaded from CDN and initialised in a DOMContentLoaded
+    handler, so we wait for the .fc element to appear rather than using a
+    fixed timeout.
+    """
     await alice_page.goto(DASHBOARD_URL)
     await alice_page.wait_for_load_state("networkidle")
-    await alice_page.wait_for_timeout(2000)
+    try:
+        await alice_page.wait_for_selector('#dashboard-club-calendar .fc', timeout=8000)
+    except Exception:
+        pass  # screenshot still taken; assertion below will give the clear message
     await alice_page.screenshot(path=screenshot_path("31_7_dashboard_fc"))
 
     fc = alice_page.locator('#dashboard-club-calendar .fc')
     assert await fc.count() > 0, \
-        "FullCalendar .fc element not found inside #dashboard-club-calendar"
+        "FullCalendar .fc element not found inside #dashboard-club-calendar after 8s"
 
 
 @pytest.mark.asyncio

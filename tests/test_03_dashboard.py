@@ -25,15 +25,20 @@ async def test_3_2_dashboard_shows_wallet(alice_page: Page):
 
 @pytest.mark.asyncio
 async def test_3_3_bookings_tab(alice_page: Page):
-    """Bookings section is reachable from dashboard."""
-    await alice_page.goto(DASHBOARD_URL)
+    """Bookings section is reachable from dashboard.
+
+    The dashboard does not have a named 'Bookings' nav tab — the booking flow
+    is reached via the 'Make a Booking' CTA or direct URL.  This test verifies
+    the availability/check-in page loads for Alice (i.e. she has booking access).
+    """
+    from tests.helpers import AVAILABILITY_URL
+    await alice_page.goto(AVAILABILITY_URL)
     await alice_page.wait_for_load_state("networkidle")
-    bookings_link = alice_page.locator("a").filter(has_text="Booking").first
-    if await bookings_link.count() > 0:
-        await bookings_link.click()
-        await alice_page.wait_for_load_state("networkidle")
     await alice_page.screenshot(path=screenshot_path("03_3_bookings_tab"))
     assert "500" not in await alice_page.title()
+    content = await alice_page.content()
+    assert any(kw in content.lower() for kw in ["check in", "check-in", "availability", "date"]), \
+        "Availability page did not render — Alice may lack booking access"
 
 
 @pytest.mark.asyncio

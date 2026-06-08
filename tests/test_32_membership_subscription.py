@@ -24,6 +24,7 @@ file with an active subscription, keeping the DB in a known-good state.
 Prerequisite: Bob must NOT have an active/pending subscription when tests 32.5+
 run.  Tests 32.5 cancels it if present.
 """
+import re
 import pytest
 from playwright.async_api import Page
 from tests.helpers import (
@@ -61,9 +62,10 @@ async def test_32_2_assign_form_elements_present(booking_admin_page: Page):
     await booking_admin_page.goto(SUBS_ADMIN_ASSIGN_URL)
     await booking_admin_page.wait_for_load_state("networkidle")
 
-    # Select2-powered member dropdown
-    assert await booking_admin_page.locator(".select2-container").count() > 0, \
-        "Select2 profile dropdown not found"
+    # Profile selector — the raw <select> always exists; Select2 wraps it when
+    # CDN loads but we check the underlying element which is always present.
+    assert await booking_admin_page.locator("#profile_id").count() > 0, \
+        "#profile_id select not found on assign form"
 
     # Membership type selector
     assert await booking_admin_page.locator("#membership_type_id").count() > 0, \
@@ -142,34 +144,35 @@ async def test_32_5_cancel_bobs_subscription_if_active(booking_admin_page: Page)
     if await bob_row.count() == 0:
         pytest.skip("No subscription row found for Bob — nothing to cancel")
 
-    # Find a cancel / refund link in that row
-    cancel_link = bob_row.locator("a").filter(
-        has_text=lambda t: any(kw in t.lower() for kw in ("cancel", "refund", "detail"))
-    ).first
-    if await cancel_link.count() == 0:
-        # Fallback: look for any link in the row
-        cancel_link = bob_row.locator("a").first
+    # The subscription list uses <button> elements (not <a> tags) for actions.
+    # The cancel/refund button has class "cancel-refund-btn".
+    cancel_btn = bob_row.locator("button.cancel-refund-btn")
+    if await cancel_btn.count() == 0:
+        # Fallback: any danger button in the row
+        cancel_btn = bob_row.locator("button.btn-outline-danger, button.btn-danger").first
 
-    if await cancel_link.count() == 0:
-        pytest.skip("Could not locate a cancel/detail link for Bob's subscription row")
+    if await cancel_btn.count() == 0:
+        pytest.skip("Could not locate a cancel/refund button for Bob's subscription row")
 
-    await cancel_link.click()
-    await booking_admin_page.wait_for_load_state("networkidle")
+    # The cancel-refund button opens a Bootstrap modal (#cancelRefundModal).
+    # Trigger the modal and confirm via the modal's submit button.
+    await cancel_btn.click()
+    await booking_admin_page.wait_for_timeout(800)
     await booking_admin_page.screenshot(path=screenshot_path("32_5_cancel_detail"))
 
-    # Look for a cancel/refund form or button on the detail page
-    cancel_btn = booking_admin_page.locator(
-        "button[type='submit'], input[type='submit']"
-    ).filter(has_text=lambda t: any(kw in t.lower() for kw in ("cancel", "refund")))
+    # Find and submit the modal confirm button (the modal form has a submit button)
+    modal_confirm = booking_admin_page.locator(
+        "#cancelRefundModal button[type='submit'], "
+        "#cancelRefundModal input[type='submit'], "
+        "#cancelRefundModal .btn-danger"
+    ).filter(has_text=re.compile(r"cancel|confirm|yes", re.IGNORECASE)).first
+    if await modal_confirm.count() == 0:
+        modal_confirm = booking_admin_page.locator("#cancelRefundModal .btn-danger").first
 
-    if await cancel_btn.count() == 0:
-        # Some pages use a form with a hidden action; just look for any submit
-        cancel_btn = booking_admin_page.locator("button[type='submit']").first
+    if await modal_confirm.count() == 0:
+        pytest.skip("Cancel confirmation button not found in modal — skipping cancel step")
 
-    if await cancel_btn.count() == 0:
-        pytest.skip("Cancel form not found on subscription detail page — skipping cancel step")
-
-    await cancel_btn.click()
+    await modal_confirm.click()
     await booking_admin_page.wait_for_load_state("networkidle")
     await booking_admin_page.screenshot(path=screenshot_path("32_5_after_cancel"))
 

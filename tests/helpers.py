@@ -76,23 +76,25 @@ async def admin_assign_subscription(admin_page: Page, member_email: str) -> bool
     await admin_page.goto(SUBS_ADMIN_ASSIGN_URL)
     await admin_page.wait_for_load_state("networkidle")
 
-    # -- Open the Select2 profile dropdown and search by email prefix ----------
-    select2_container = admin_page.locator(".select2-container").first
-    await select2_container.click()
-
-    search_box = admin_page.locator(".select2-search__field")
-    await search_box.wait_for(state="visible", timeout=5000)
-    await search_box.fill(member_email.split("@")[0])
-    await admin_page.wait_for_timeout(1000)
-
-    results = admin_page.locator(".select2-results__option")
-    if await results.count() == 0:
+    # -- Select the member profile via the underlying <select> element --------
+    # Using select_option() directly is more reliable than clicking the Select2
+    # UI, which depends on the CDN-loaded Select2 library initialising.
+    # Select2 listens for changes on the underlying <select> so both approaches
+    # end up dispatching the same change event.
+    profile_select = admin_page.locator("#profile_id")
+    options = await profile_select.locator("option").all()
+    chosen_value = None
+    for opt in options:
+        val = await opt.get_attribute("value")
+        text = await opt.inner_text()
+        if val and member_email.split("@")[0].lower() in text.lower():
+            chosen_value = val
+            break
+    if chosen_value is None:
+        # No matching option — member already has an active subscription
         return False
-    first_text = await results.first.inner_text()
-    if any(kw in first_text.lower() for kw in ("no results", "searching")):
-        return False
 
-    await results.first.click()
+    await profile_select.select_option(value=chosen_value)
     await admin_page.wait_for_timeout(300)
 
     # -- Select first available membership type --------------------------------

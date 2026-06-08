@@ -124,9 +124,10 @@ async def test_30_6_map_renders_room_rects(alice_page: Page):
     await alice_page.wait_for_timeout(1500)
     await alice_page.screenshot(path=screenshot_path("30_6_map_rooms"))
 
-    rooms = alice_page.locator('#bl-map-canvas .lm-room')
+    # The bed-list map uses class "blm-room" (not "lm-room" which is the booking map)
+    rooms = alice_page.locator('#bl-map-canvas .blm-room')
     count = await rooms.count()
-    assert count > 0, f"No .lm-room elements found in bed-list map SVG (got {count})"
+    assert count > 0, f"No .blm-room elements found in bed-list map SVG (got {count})"
 
 
 @pytest.mark.asyncio
