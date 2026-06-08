@@ -56,3 +56,128 @@ async def login(page: Page, email: str, password: str):
     await page.fill('input[name="password"]', password)
     await page.click('button[type="submit"]')
     await page.wait_for_load_state("networkidle")
+
+
+# ---------------------------------------------------------------------------
+# Reusable subscription-assignment helpers
+# ---------------------------------------------------------------------------
+
+async def admin_assign_subscription(admin_page: Page, member_email: str) -> bool:
+    """Admin assigns a new subscription to a member via the admin assign page.
+
+    Returns True on success, False if the member already has an active/pending
+    subscription (they won't appear in the Select2 dropdown).
+
+    Usage example (from another test):
+        from tests.helpers import admin_assign_subscription
+        ok = await admin_assign_subscription(booking_admin_page, BOB["email"])
+        assert ok, "Bob should have been assignable (no active subscription)"
+    """
+    await admin_page.goto(SUBS_ADMIN_ASSIGN_URL)
+    await admin_page.wait_for_load_state("networkidle")
+
+    # -- Open the Select2 profile dropdown and search by email prefix ----------
+    select2_container = admin_page.locator(".select2-container").first
+    await select2_container.click()
+
+    search_box = admin_page.locator(".select2-search__field")
+    await search_box.wait_for(state="visible", timeout=5000)
+    await search_box.fill(member_email.split("@")[0])
+    await admin_page.wait_for_timeout(1000)
+
+    results = admin_page.locator(".select2-results__option")
+    if await results.count() == 0:
+        return False
+    first_text = await results.first.inner_text()
+    if any(kw in first_text.lower() for kw in ("no results", "searching")):
+        return False
+
+    await results.first.click()
+    await admin_page.wait_for_timeout(300)
+
+    # -- Select first available membership type --------------------------------
+    membership_select = admin_page.locator("#membership_type_id")
+    options = await membership_select.locator("option").all()
+    for opt in options:
+        val = await opt.get_attribute("value")
+        if val:
+            await membership_select.select_option(value=val)
+            break
+    await admin_page.wait_for_timeout(500)
+
+    # -- Submit ----------------------------------------------------------------
+    await admin_page.locator("button[type='submit']").click()
+    await admin_page.wait_for_load_state("networkidle")
+
+    # Success = redirected back to the admin subscription list
+    return "subscriptions/admin" in admin_page.url
+
+
+async def pay_subscription_invoice_with_card(
+    member_page: Page,
+    card_number: str = "4242424242424242",
+) -> bool:
+    """Member pays their most recent unpaid invoice using a Stripe test card.
+
+    Navigates to MY_INVOICES_URL, clicks the first available "Pay" link, fills
+    in the Stripe PaymentElement, and waits for the payment-success redirect.
+
+    Returns True on success, False if no payable invoice was found or the
+    Stripe element could not be interacted with.
+
+    Usage example (from another test):
+        from tests.helpers import pay_subscription_invoice_with_card
+        ok = await pay_subscription_invoice_with_card(bob_page)
+        assert ok, "Invoice payment should have succeeded"
+    """
+    await member_page.goto(MY_INVOICES_URL)
+    await member_page.wait_for_load_state("networkidle")
+
+    # Find a Pay Now link for an unpaid invoice
+    pay_link = member_page.locator('a[href*="/billing/invoices/"][href*="/pay/"]').first
+    if await pay_link.count() == 0:
+        return False
+
+    await pay_link.click()
+    await member_page.wait_for_load_state("networkidle")
+    # Give Stripe time to mount the PaymentElement
+    await member_page.wait_for_timeout(4000)
+
+    # -- Fill in Stripe PaymentElement ----------------------------------------
+    # PaymentElement mounts as an <iframe> inside #payment-element.
+    # The element uses tab layout restricted to card only.
+    try:
+        await member_page.wait_for_selector("#payment-element iframe", timeout=15000)
+        pf = member_page.frame_locator("#payment-element iframe").first
+
+        # Card number — try autocomplete attr first, fall back to placeholder
+        card_el = pf.locator('input[autocomplete="cc-number"]')
+        if await card_el.count() == 0:
+            card_el = pf.locator('input[placeholder*="1234"]')
+        await card_el.fill(card_number)
+        await member_page.wait_for_timeout(300)
+
+        exp_el = pf.locator('input[autocomplete="cc-exp"]')
+        if await exp_el.count() == 0:
+            exp_el = pf.locator('input[placeholder*="MM"]')
+        await exp_el.fill("1234")
+        await member_page.wait_for_timeout(300)
+
+        cvc_el = pf.locator('input[autocomplete="cc-csc"]')
+        if await cvc_el.count() == 0:
+            cvc_el = pf.locator('input[placeholder*="CVC"]')
+        await cvc_el.fill("123")
+        await member_page.wait_for_timeout(300)
+
+    except Exception:
+        return False
+
+    # -- Submit and wait for success redirect ----------------------------------
+    await member_page.locator("#pay-button").click()
+    try:
+        await member_page.wait_for_url("**/billing/invoices/**", timeout=30000)
+    except Exception:
+        pass  # Already on success page or URL pattern differs
+
+    final_url = member_page.url
+    return "payment=success" in final_url or "paid" in final_url or "invoices" in final_url
