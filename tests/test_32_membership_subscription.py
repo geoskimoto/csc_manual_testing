@@ -11,10 +11,18 @@ Reusable helpers in helpers.py:
   - admin_assign_subscription(admin_page, member_email)
   - pay_subscription_invoice_with_card(member_page, card_number)
 
+Suite ordering
+--------------
+test_00_prerequisites.py runs before this file and guarantees Alice and Bob have
+active subscriptions when tests 01–31 execute.
+
+This file (test_32) runs LAST in the suite (alphabetical ordering) and is the
+only file that intentionally cancels Bob's subscription (test_32_5) so the
+assign workflow can be exercised.  test_32_12 at the end verifies Bob ends the
+file with an active subscription, keeping the DB in a known-good state.
+
 Prerequisite: Bob must NOT have an active/pending subscription when tests 32.5+
-run, because the assign form only shows members without one.  Tests 32.5-32.8
-cancel Bob's existing subscription first (if present) via the admin UI.
-Run `python manage.py seed_test_data` before the full suite to ensure clean state.
+run.  Tests 32.5 cancels it if present.
 """
 import pytest
 from playwright.async_api import Page
@@ -331,3 +339,42 @@ async def test_32_11_full_assign_and_pay_workflow(booking_admin_page: Page, bob_
     content = await bob_page.content()
     assert any(kw in content.lower() for kw in ["active", "subscription", "membership"]), \
         "Bob's subscription page does not confirm active status after full workflow"
+
+
+# ---------------------------------------------------------------------------
+# 32.12 — Teardown: verify Bob ends this file with an active subscription
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_32_12_bob_ends_with_active_subscription(
+    booking_admin_page: Page,
+    bob_page: Page,
+):
+    """Teardown guard: ensures Bob has an active subscription when test_32 finishes.
+
+    Because test_32_5 cancels Bob's subscription (a necessary step for the
+    assign-workflow tests), there is a risk that a mid-suite failure leaves Bob
+    without one.  This final test uses the same idempotent helper as
+    test_00_prerequisites to restore Bob to a bookable state, keeping the DB
+    in a known-good state for future runs.
+
+    It passes immediately (no side-effects) if Bob already has an active
+    subscription (e.g. test_32_9 or test_32_11 succeeded).
+    """
+    from tests.test_00_prerequisites import _ensure_active_subscription
+
+    result = await _ensure_active_subscription(
+        admin_page=booking_admin_page,
+        member_page=bob_page,
+        member_email=BOB["email"],
+        label="Bob (teardown)",
+    )
+    await bob_page.screenshot(path=screenshot_path(f"32_12_bob_teardown_{result}"))
+
+    await bob_page.goto(SUBSCRIPTIONS_URL)
+    await bob_page.wait_for_load_state("networkidle")
+    content = await bob_page.content()
+    assert "active" in content.lower(), (
+        f"Bob still does not have an active subscription after teardown "
+        f"(result='{result}'). Manual intervention required — run seed_test_data."
+    )
