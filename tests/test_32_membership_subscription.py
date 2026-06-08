@@ -165,23 +165,32 @@ async def test_32_5_cancel_bobs_subscription_if_active(booking_admin_page: Page)
 
     await booking_admin_page.screenshot(path=screenshot_path("32_5_before_cancel"))
 
-    # Read CSRF token from cookie (set by Django on every page load)
-    cookies = await booking_admin_page.context.cookies()
-    csrf_token = next((c["value"] for c in cookies if c["name"] == "csrftoken"), "")
-
     full_url = f"{BASE_URL}{action_url}" if action_url.startswith("/") else action_url
-    response = await booking_admin_page.request.post(
-        full_url,
-        form={
-            "csrfmiddlewaretoken": csrf_token,
-            "refund_amount": "0",
-            "refund_reason": "Test cleanup — resetting Bob for assign-workflow test",
-        },
+
+    # Use in-page fetch() so the Referer header is set to the same origin as the
+    # target — required for Django's CSRF check on HTTPS (page.request.post() may
+    # omit the Referer, causing a 403).  The browser context carries session cookies.
+    status = await booking_admin_page.evaluate(
+        """async ([url]) => {
+            const cookie = document.cookie.match(/csrftoken=([^;]+)/);
+            const csrf = cookie ? cookie[1] : '';
+            const resp = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': csrf,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'refund_amount=0&refund_reason=Test+cleanup',
+            });
+            return resp.status;
+        }""",
+        [full_url],
     )
     await booking_admin_page.screenshot(path=screenshot_path("32_5_after_cancel"))
 
-    assert response.status in (200, 302, 303), (
-        f"Cancel POST returned unexpected status {response.status}"
+    assert status in (200, 302, 303), (
+        f"Cancel POST returned unexpected status {status}"
     )
     assert "500" not in await booking_admin_page.title(), "Server error after cancel attempt"
 
