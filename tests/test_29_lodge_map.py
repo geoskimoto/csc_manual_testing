@@ -448,3 +448,32 @@ async def test_29_15_ajax_date_change_closes_popover(alice_page: Page):
         "Popover still visible after changing dates — should have closed on rebuild"
 
     assert "500" not in await alice_page.title(), "Server error after date change"
+
+
+@pytest.mark.asyncio
+async def test_29_16_unavailable_room_tooltip(alice_map_page: Page):
+    """Hovering an unavailable room that has a booking shows a tooltip with the occupant name."""
+    unavailable = alice_map_page.locator('.lm-room[data-state="unavailable"]')
+    if await unavailable.count() == 0:
+        pytest.skip("No unavailable rooms in map for this date range")
+
+    # Rooms with tooltip data have cursor:crosshair set by JS
+    tooltip_room = None
+    for i in range(await unavailable.count()):
+        room = unavailable.nth(i)
+        cursor = await room.evaluate("el => window.getComputedStyle(el).cursor")
+        if cursor == "crosshair":
+            tooltip_room = room
+            break
+
+    if tooltip_room is None:
+        pytest.skip("No unavailable rooms have occupancy tooltip data for these dates")
+
+    await tooltip_room.hover()
+    await alice_map_page.wait_for_timeout(500)
+    await alice_map_page.screenshot(path=screenshot_path("29_16_tooltip"))
+
+    tooltip = alice_map_page.locator('#lm-map-tooltip')
+    assert await tooltip.is_visible(), "#lm-map-tooltip not visible after hovering booked room"
+    tip_text = await tooltip.inner_text()
+    assert tip_text.strip(), "Tooltip visible but has no text content"

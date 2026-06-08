@@ -39,6 +39,10 @@ SUBS_ADMIN_URL        = f"{BASE_URL}/subscriptions/admin/list/"
 SUBS_ADMIN_ASSIGN_URL = f"{BASE_URL}/subscriptions/admin/assign/"
 STUCK_PAYMENTS_URL    = f"{BASE_URL}/bookings/admin/stuck-payment-dashboard/"
 
+# Newer feature URLs
+BED_LIST_URL  = f"{BASE_URL}/dashboard/bed-list-calendar/"
+EVENTS_URL    = f"{BASE_URL}/events/"
+
 
 def screenshot_path(name: str) -> str:
     SCREENSHOT_DIR.mkdir(exist_ok=True)
