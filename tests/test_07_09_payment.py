@@ -166,13 +166,33 @@ async def test_8_1_stripe_success_payment(alice_page: Page):
     pay_btn = alice_page.locator("#pay-button")
     await pay_btn.scroll_into_view_if_needed()
     await pay_btn.click(force=True)
-    await alice_page.wait_for_load_state("load", timeout=30000)
-    await alice_page.wait_for_timeout(3000)  # allow redirect/confirmation to settle
-    await alice_page.screenshot(path=screenshot_path("08_1_stripe_success"))
 
+    # Booking confirmation is webhook-driven: after client-side card confirmation
+    # the flow redirects to payment_processing, which polls booking_status until
+    # the Stripe webhook flips the booking to confirmed, then redirects to
+    # payment_success. A loose substring match (e.g. on "booking") would pass
+    # even while stuck on the polling page — which is exactly what happens if the
+    # booking webhook endpoint (/bookings/webhooks/stripe/) is not registered in
+    # Stripe or stops delivering payment_intent.succeeded. So require that the
+    # flow actually reaches payment_success.
+    try:
+        await alice_page.wait_for_url(
+            lambda url: "payment-success" in url, timeout=45000
+        )
+    except Exception:
+        await alice_page.screenshot(path=screenshot_path("08_1_stripe_success"))
+        pytest.fail(
+            "Booking never reached payment_success — last URL: "
+            f"{alice_page.url}. Confirmation is webhook-driven; verify the "
+            "booking webhook endpoint (/bookings/webhooks/stripe/) is registered "
+            "in Stripe and delivering payment_intent.succeeded "
+            "(run `manage.py diagnose_stripe`)."
+        )
+
+    await alice_page.screenshot(path=screenshot_path("08_1_stripe_success"))
     content = await alice_page.content()
-    assert any(kw in content.lower() for kw in ["success", "confirmed", "booking", "thank"]), \
-        f"Payment did not appear to succeed. URL: {alice_page.url}"
+    assert any(kw in content.lower() for kw in ["success", "confirmed", "thank"]), \
+        f"Reached {alice_page.url} but no confirmation text was present"
 
 
 @pytest.mark.asyncio

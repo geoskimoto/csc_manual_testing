@@ -1,0 +1,403 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /home/geoskimoto/projects/csc_manual_testing/.venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.8.0-107-generic-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'base-url': '2.1.0', 'playwright': '0.7.2', 'metadata': '3.1.1', 'html': '4.2.0', 'asyncio': '1.3.0', 'json-report': '1.5.0'}, 'Base URL': ''}
+rootdir: /home/geoskimoto/projects/csc_manual_testing
+configfile: pytest.ini
+plugins: base-url-2.1.0, playwright-0.7.2, metadata-3.1.1, html-4.2.0, asyncio-1.3.0, json-report-1.5.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 227 items
+
+tests/test_00_prerequisites.py::test_00_1_alice_has_active_subscription PASSED [  0%]
+tests/test_00_prerequisites.py::test_00_2_bob_has_active_subscription PASSED [  0%]
+tests/test_00_prerequisites.py::test_00_3_alice_can_reach_availability PASSED [  1%]
+tests/test_00_prerequisites.py::test_00_4_bob_can_reach_availability PASSED [  1%]
+tests/test_01_environment.py::test_1_site_loads PASSED                   [  2%]
+tests/test_01_environment.py::test_1_alice_login PASSED                  [  2%]
+tests/test_01_environment.py::test_1_bob_login PASSED                    [  3%]
+tests/test_01_environment.py::test_1_wrong_password_rejected PASSED      [  3%]
+tests/test_02_registration.py::test_2_1_sign_up_redirects_to_membership_application PASSED [  3%]
+tests/test_02_registration.py::test_2_2_membership_application_loads PASSED [  4%]
+tests/test_02_registration.py::test_2_3_membership_application_can_be_submitted PASSED [  4%]
+tests/test_02_registration.py::test_2_4_login_page_has_expected_fields PASSED [  5%]
+tests/test_02_registration.py::test_2_5_invalid_invite_token_rejected PASSED [  5%]
+tests/test_02_registration.py::test_2_6_valid_token_shows_registration_form PASSED [  6%]
+tests/test_02_registration.py::test_2_7_email_is_prefilled_from_invitation PASSED [  6%]
+tests/test_02_registration.py::test_2_8_password_mismatch_shows_error PASSED [  7%]
+tests/test_02_registration.py::test_2_9_weak_password_rejected PASSED    [  7%]
+tests/test_02_registration.py::test_2_10_missing_required_fields_shows_error PASSED [  7%]
+tests/test_02_registration.py::test_2_11_partial_family_member_shows_error PASSED [  8%]
+tests/test_02_registration.py::test_2_12_solo_registration_succeeds PASSED [  8%]
+tests/test_02_registration.py::test_2_13_registration_with_adult_family_member_succeeds PASSED [  9%]
+tests/test_02_registration.py::test_2_14_registration_with_child_family_member_succeeds PASSED [  9%]
+tests/test_02_registration.py::test_2_15_used_token_is_rejected PASSED   [ 10%]
+tests/test_02_registration.py::test_2_16_new_account_can_sign_in PASSED  [ 10%]
+tests/test_03_dashboard.py::test_3_1_dashboard_loads PASSED              [ 11%]
+tests/test_03_dashboard.py::test_3_2_dashboard_shows_wallet PASSED       [ 11%]
+tests/test_03_dashboard.py::test_3_3_bookings_tab PASSED                 [ 11%]
+tests/test_03_dashboard.py::test_3_4_profile_page PASSED                 [ 12%]
+tests/test_03_dashboard.py::test_3_5_wallet_page PASSED                  [ 12%]
+tests/test_04_booking_individual.py::test_4_1_check_availability PASSED  [ 13%]
+tests/test_04_booking_individual.py::test_4_2_add_room_to_cart PASSED    [ 13%]
+tests/test_04_booking_individual.py::test_4_3_view_cart PASSED           [ 14%]
+tests/test_04_booking_individual.py::test_4_4_cart_timer_visible PASSED  [ 14%]
+tests/test_04_booking_individual.py::test_4_5_remove_from_cart PASSED    [ 14%]
+tests/test_04_booking_individual.py::test_4_7_location_filter PASSED     [ 15%]
+tests/test_05_family_booking.py::test_5_1_profile_page_accessible PASSED [ 15%]
+tests/test_05_family_booking.py::test_5_2_family_section_on_profile_or_dashboard PASSED [ 16%]
+tests/test_05_family_booking.py::test_5_3_availability_shows_member_selects PASSED [ 16%]
+tests/test_05_family_booking.py::test_5_4_availability_member_select_has_alice PASSED [ 17%]
+tests/test_05_family_booking.py::test_5_5_multiple_rooms_can_be_selected PASSED [ 17%]
+tests/test_06_guest_booking.py::test_6_1_availability_page_loads_for_guest_test PASSED [ 18%]
+tests/test_06_guest_booking.py::test_6_2_guest_option_in_member_select PASSED [ 18%]
+tests/test_06_guest_booking.py::test_6_3_add_room_with_member_to_cart PASSED [ 18%]
+tests/test_06_guest_booking.py::test_6_4_checkout_shows_occupant_info PASSED [ 19%]
+tests/test_07_09_payment.py::test_7_1_checkout_page_loads PASSED         [ 19%]
+tests/test_07_09_payment.py::test_7_1_wallet_toggle_at_checkout PASSED   [ 20%]
+tests/test_07_09_payment.py::test_8_1_stripe_form_present PASSED         [ 20%]
+tests/test_07_09_payment.py::test_8_1_stripe_success_payment FAILED      [ 21%]
+tests/test_07_09_payment.py::test_8_2_stripe_declined_card PASSED        [ 21%]
+tests/test_10_cancellation.py::test_10_1_cancel_button_visible_on_booking PASSED [ 22%]
+tests/test_10_cancellation.py::test_10_2_refund_url_exists PASSED        [ 22%]
+tests/test_10_cancellation.py::test_10_3_booking_history_has_status_badges PASSED [ 22%]
+tests/test_10_cancellation.py::test_10_4_cancellation_policy_info_present SKIPPED by booking state) [ 23%]
+tests/test_11_booking_history.py::test_11_1_bookings_page_loads PASSED   [ 23%]
+tests/test_11_booking_history.py::test_11_2_booking_detail_loads PASSED  [ 24%]
+tests/test_11_booking_history.py::test_11_3_booking_detail_has_dates_and_room PASSED [ 24%]
+tests/test_11_booking_history.py::test_11_4_booking_invoice_link PASSED  [ 25%]
+tests/test_11_booking_history.py::test_11_5_dashboard_links_to_bookings PASSED [ 25%]
+tests/test_12_admin_booking.py::test_12_1_admin_dashboard_loads PASSED   [ 25%]
+tests/test_12_admin_booking.py::test_12_2_admin_blocked_for_regular_member PASSED [ 26%]
+tests/test_12_admin_booking.py::test_12_3_admin_availability_search PASSED [ 26%]
+tests/test_12_admin_booking.py::test_12_4_admin_availability_returns_results PASSED [ 27%]
+tests/test_12_admin_booking.py::test_12_5_admin_search_members_api PASSED [ 27%]
+tests/test_12_admin_booking.py::test_12_6_admin_cart_page_loads PASSED   [ 28%]
+tests/test_12_admin_booking.py::test_12_7_admin_checkout_page_loads PASSED [ 28%]
+tests/test_12_admin_booking.py::test_12_8_admin_transactions_page_loads PASSED [ 29%]
+tests/test_13_admin_manage.py::test_13_1_manage_bookings_loads PASSED    [ 29%]
+tests/test_13_admin_manage.py::test_13_2_manage_bookings_shows_alice_booking PASSED [ 29%]
+tests/test_13_admin_manage.py::test_13_3_manage_bookings_has_search_or_filter PASSED [ 30%]
+tests/test_13_admin_manage.py::test_13_4_admin_booking_detail_loads PASSED [ 30%]
+tests/test_13_admin_manage.py::test_13_5_admin_manage_blocked_for_regular_member PASSED [ 31%]
+tests/test_13_admin_manage.py::test_13_6_admin_can_view_dashboard_stats PASSED [ 31%]
+tests/test_14_subscriptions.py::test_14_1_subscriptions_page_loads PASSED [ 32%]
+tests/test_14_subscriptions.py::test_14_1_alice_subscription_is_active PASSED [ 32%]
+tests/test_14_subscriptions.py::test_14_2_subscription_shown_on_dashboard PASSED [ 33%]
+tests/test_14_subscriptions.py::test_14_3_subscription_shown_on_profile PASSED [ 33%]
+tests/test_14_subscriptions.py::test_14_4_auto_renew_toggle_present PASSED [ 33%]
+tests/test_14_subscriptions.py::test_14_5_subscriptions_redirect_anonymous PASSED [ 34%]
+tests/test_15_invoicing.py::test_15_1_my_invoices_page_loads PASSED      [ 34%]
+tests/test_15_invoicing.py::test_15_2_my_invoices_anonymous_redirect PASSED [ 35%]
+tests/test_15_invoicing.py::test_15_3_billing_admin_dashboard_loads PASSED [ 35%]
+tests/test_15_invoicing.py::test_15_4_billing_admin_blocked_for_booking_admin SKIPPEDther this is intended app behaviour) [ 36%]
+tests/test_15_invoicing.py::test_15_5_billing_admin_blocked_for_regular_member PASSED [ 36%]
+tests/test_15_invoicing.py::test_15_6_invoice_create_page_loads PASSED   [ 37%]
+tests/test_15_invoicing.py::test_15_7_alice_invoice_shows_booking_receipt PASSED [ 37%]
+tests/test_16_notifications.py::test_16_1_notifications_page_loads PASSED [ 37%]
+tests/test_16_notifications.py::test_16_2_mark_all_read_button_present PASSED [ 38%]
+tests/test_16_notifications.py::test_16_3_mark_all_read_action PASSED    [ 38%]
+tests/test_16_notifications.py::test_16_4_individual_notification_mark_read SKIPPEDconsuming the single seeded unread notification. Needs a
+second seeded unread notification to run reliably in the full suite.)    [ 39%]
+tests/test_16_notifications.py::test_16_5_notifications_anonymous_redirect PASSED [ 39%]
+tests/test_16_notifications.py::test_16_6_notification_count_in_nav PASSED [ 40%]
+tests/test_17_wallet.py::test_17_1_wallet_page_loads PASSED              [ 40%]
+tests/test_17_wallet.py::test_17_2_wallet_balance_shown PASSED           [ 40%]
+tests/test_17_wallet.py::test_17_3_transaction_history_present PASSED    [ 41%]
+tests/test_17_wallet.py::test_17_4_add_funds_entry_point PASSED          [ 41%]
+tests/test_17_wallet.py::test_17_5_add_funds_page_loads PASSED           [ 42%]
+tests/test_17_wallet.py::test_17_6_wallet_shown_on_dashboard PASSED      [ 42%]
+tests/test_17_wallet.py::test_17_7_my_invoices_page_loads PASSED         [ 43%]
+tests/test_17_wallet.py::test_17_8_wallet_anonymous_redirect PASSED      [ 43%]
+tests/test_18_profile.py::test_18_1_profile_page_loads PASSED            [ 44%]
+tests/test_18_profile.py::test_18_2_profile_shows_member_info PASSED     [ 44%]
+tests/test_18_profile.py::test_18_3_profiles_list_page_loads PASSED      [ 44%]
+tests/test_18_profile.py::test_18_4_edit_profile_link_present PASSED     [ 45%]
+tests/test_18_profile.py::test_18_5_change_password_page_loads PASSED    [ 45%]
+tests/test_18_profile.py::test_18_6_profile_edit_page_loads PASSED       [ 46%]
+tests/test_18_profile.py::test_18_7_profile_anonymous_redirect PASSED    [ 46%]
+tests/test_18_profile.py::test_18_8_dashboard_shows_profile_link PASSED  [ 47%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/] PASSED [ 47%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/wallet/] PASSED [ 48%]
+tests/test_19_security.py::test_19_1_anonymous_redirects_to_login[/dashboard/profile/] PASSED [ 48%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/admin-bookings/] PASSED [ 48%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/admin-bookings/manage-bookings/] PASSED [ 49%]
+tests/test_19_security.py::test_19_2_member_cannot_access_admin[/billing/admin-tool/] PASSED [ 49%]
+tests/test_19_security.py::test_19_3_cannot_access_other_users_booking PASSED [ 50%]
+tests/test_19_security.py::test_19_5_csrf_protection PASSED              [ 50%]
+tests/test_20_edge_cases.py::test_20_1_past_date_booking PASSED          [ 51%]
+tests/test_20_edge_cases.py::test_20_2_same_day_checkin_checkout PASSED  [ 51%]
+tests/test_20_edge_cases.py::test_20_6_concurrent_cart_add PASSED        [ 51%]
+tests/test_21_responsive.py::test_21_responsive_dashboard[phone-viewport0] PASSED [ 52%]
+tests/test_21_responsive.py::test_21_responsive_dashboard[tablet-viewport1] PASSED [ 52%]
+tests/test_21_responsive.py::test_21_responsive_availability[phone-viewport0] PASSED [ 53%]
+tests/test_21_responsive.py::test_21_responsive_availability[tablet-viewport1] PASSED [ 53%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/-home] PASSED [ 54%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/user/sign-in/-login] PASSED [ 54%]
+tests/test_22_cross_browser.py::test_22_1_firefox_public_pages[/bookings/check_availability/-availability] PASSED [ 55%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/-home] PASSED [ 55%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/user/sign-in/-login] PASSED [ 55%]
+tests/test_22_cross_browser.py::test_22_2_webkit_public_pages[/bookings/check_availability/-availability] PASSED [ 56%]
+tests/test_22_cross_browser.py::test_22_3_firefox_login_flow PASSED      [ 56%]
+tests/test_22_cross_browser.py::test_22_4_webkit_login_flow PASSED       [ 57%]
+tests/test_22_cross_browser.py::test_22_5_firefox_availability_search PASSED [ 57%]
+tests/test_23_race_conditions.py::test_23_1_concurrent_cart_add_different_users PASSED [ 58%]
+tests/test_23_race_conditions.py::test_23_2_concurrent_cart_add_same_user_session PASSED [ 58%]
+tests/test_23_race_conditions.py::test_23_3_cart_state_isolated_between_users PASSED [ 59%]
+tests/test_24_stuck_payments.py::test_24_1_anonymous_gets_403 PASSED     [ 59%]
+tests/test_24_stuck_payments.py::test_24_2_member_gets_403 PASSED        [ 59%]
+tests/test_24_stuck_payments.py::test_24_3_booking_admin_gets_403 PASSED [ 60%]
+tests/test_24_stuck_payments.py::test_24_4_financial_admin_gets_200 PASSED [ 60%]
+tests/test_24_stuck_payments.py::test_24_5_dashboard_has_stat_cards PASSED [ 61%]
+tests/test_24_stuck_payments.py::test_24_6_dashboard_has_section_headings PASSED [ 61%]
+tests/test_24_stuck_payments.py::test_24_7_action_links_present PASSED   [ 62%]
+tests/test_24_stuck_payments.py::test_24_8_unresolved_record_visible PASSED [ 62%]
+tests/test_24_stuck_payments.py::test_24_9_resolved_section_renders PASSED [ 62%]
+tests/test_25_admin_transactions_filters.py::test_25_1_transactions_loads_for_financial_admin PASSED [ 63%]
+tests/test_25_admin_transactions_filters.py::test_25_2_transactions_loads_for_booking_admin PASSED [ 63%]
+tests/test_25_admin_transactions_filters.py::test_25_3_member_cannot_access PASSED [ 64%]
+tests/test_25_admin_transactions_filters.py::test_25_4_both_tab_links_present PASSED [ 64%]
+tests/test_25_admin_transactions_filters.py::test_25_5_bookings_tab_shows_table PASSED [ 65%]
+tests/test_25_admin_transactions_filters.py::test_25_6_invoices_tab_shows_filter_chips PASSED [ 65%]
+tests/test_25_admin_transactions_filters.py::test_25_7_sub_chip_filters_to_subscription_invoices PASSED [ 66%]
+tests/test_25_admin_transactions_filters.py::test_25_8_bkg_chip_filters_to_booking_invoices PASSED [ 66%]
+tests/test_25_admin_transactions_filters.py::test_25_9_all_chip_clears_invoice_type_filter PASSED [ 66%]
+tests/test_26_invoice_admin.py::test_26_1_dashboard_loads_for_financial_admin PASSED [ 67%]
+tests/test_26_invoice_admin.py::test_26_2_dashboard_loads_for_booking_admin PASSED [ 67%]
+tests/test_26_invoice_admin.py::test_26_3_member_cannot_access PASSED    [ 68%]
+tests/test_26_invoice_admin.py::test_26_4_dashboard_shows_statistics_and_list PASSED [ 68%]
+tests/test_26_invoice_admin.py::test_26_5_create_page_loads_with_form_fields PASSED [ 69%]
+tests/test_26_invoice_admin.py::test_26_6_create_draft_invoice PASSED    [ 69%]
+tests/test_26_invoice_admin.py::test_26_7_send_invoice PASSED            [ 70%]
+tests/test_26_invoice_admin.py::test_26_8_record_payment PASSED          [ 70%]
+tests/test_26_invoice_admin.py::test_26_9_void_draft_invoice PASSED      [ 70%]
+tests/test_27_subscription_admin.py::test_27_1_list_loads_for_financial_admin PASSED [ 71%]
+tests/test_27_subscription_admin.py::test_27_2_list_loads_for_booking_admin PASSED [ 71%]
+tests/test_27_subscription_admin.py::test_27_3_member_cannot_access PASSED [ 72%]
+tests/test_27_subscription_admin.py::test_27_4_list_shows_alice_subscription PASSED [ 72%]
+tests/test_27_subscription_admin.py::test_27_5_list_shows_status_badges PASSED [ 73%]
+tests/test_27_subscription_admin.py::test_27_6_statistics_cards_present PASSED [ 73%]
+tests/test_27_subscription_admin.py::test_27_7_view_details_modal_opens PASSED [ 74%]
+tests/test_27_subscription_admin.py::test_27_8_assign_membership_page_loads PASSED [ 74%]
+tests/test_28_admin_refund.py::test_28_1_manage_bookings_loads_for_booking_admin PASSED [ 74%]
+tests/test_28_admin_refund.py::test_28_2_manage_bookings_loads_for_financial_admin PASSED [ 75%]
+tests/test_28_admin_refund.py::test_28_3_member_cannot_access_manage_bookings PASSED [ 75%]
+tests/test_28_admin_refund.py::test_28_4_confirmed_booking_has_refund_button PASSED [ 76%]
+tests/test_28_admin_refund.py::test_28_5_cancelled_bookings_have_no_refund_button PASSED [ 76%]
+tests/test_28_admin_refund.py::test_28_6_refund_modal_opens_with_booking_info PASSED [ 77%]
+tests/test_28_admin_refund.py::test_28_7_refund_modal_has_required_fields PASSED [ 77%]
+tests/test_28_admin_refund.py::test_28_8_cancel_button_closes_modal PASSED [ 77%]
+tests/test_29_lodge_map.py::test_29_1_map_view_toggle PASSED             [ 78%]
+tests/test_29_lodge_map.py::test_29_2_map_renders_rooms PASSED           [ 78%]
+tests/test_29_lodge_map.py::test_29_3_map_legend_visible PASSED          [ 79%]
+tests/test_29_lodge_map.py::test_29_4_click_room_opens_popover PASSED    [ 79%]
+tests/test_29_lodge_map.py::test_29_6_popover_done_closes PASSED         [ 80%]
+tests/test_29_lodge_map.py::test_29_7_popover_x_closes PASSED            [ 80%]
+tests/test_29_lodge_map.py::test_29_5_room_color_changes_on_assignment FAILED [ 81%]
+tests/test_29_lodge_map.py::test_29_8_location_filter_applies_to_map PASSED [ 81%]
+tests/test_29_lodge_map.py::test_29_9_keyboard_enter_opens_popover PASSED [ 81%]
+tests/test_29_lodge_map.py::test_29_10_keyboard_escape_closes_popover PASSED [ 82%]
+tests/test_29_lodge_map.py::test_29_11_unavailable_room_not_clickable PASSED [ 82%]
+tests/test_29_lodge_map.py::test_29_12_full_map_booking_to_cart PASSED   [ 83%]
+tests/test_29_lodge_map.py::test_29_13_family_member_booking_via_map SKIPPEDooking) [ 83%]
+tests/test_29_lodge_map.py::test_29_14_guest_booking_via_map SKIPPED (No
+guest option found in Private room dropdown)                             [ 84%]
+tests/test_29_lodge_map.py::test_29_15_ajax_date_change_closes_popover PASSED [ 84%]
+tests/test_29_lodge_map.py::test_29_16_unavailable_room_tooltip PASSED   [ 85%]
+tests/test_30_bed_list_map.py::test_30_1_bed_list_page_loads PASSED      [ 85%]
+tests/test_30_bed_list_map.py::test_30_2_calendar_renders PASSED         [ 85%]
+tests/test_30_bed_list_map.py::test_30_3_click_date_shows_bookings PASSED [ 86%]
+tests/test_30_bed_list_map.py::test_30_4_card_map_toggle_appears PASSED  [ 86%]
+tests/test_30_bed_list_map.py::test_30_5_map_toggle_renders_svg PASSED   [ 87%]
+tests/test_30_bed_list_map.py::test_30_6_map_renders_room_rects PASSED   [ 87%]
+tests/test_30_bed_list_map.py::test_30_7_card_view_returns_from_map PASSED [ 88%]
+tests/test_30_bed_list_map.py::test_30_8_unauthenticated_redirect PASSED [ 88%]
+tests/test_31_club_events.py::test_31_1_public_events_page_loads PASSED  [ 88%]
+tests/test_31_club_events.py::test_31_2_public_events_calendar_renders PASSED [ 89%]
+tests/test_31_club_events.py::test_31_3_public_events_page_accessible_unauthenticated PASSED [ 89%]
+tests/test_31_club_events.py::test_31_4_public_events_feed_returns_json PASSED [ 90%]
+tests/test_31_club_events.py::test_31_5_member_feed_requires_auth PASSED [ 90%]
+tests/test_31_club_events.py::test_31_6_dashboard_club_calendar_renders PASSED [ 91%]
+tests/test_31_club_events.py::test_31_7_dashboard_club_calendar_fullcalendar FAILED [ 91%]
+tests/test_31_club_events.py::test_31_8_member_feed_returns_json_when_authenticated PASSED [ 92%]
+tests/test_32_membership_subscription.py::test_32_1_admin_assign_page_loads PASSED [ 92%]
+tests/test_32_membership_subscription.py::test_32_2_assign_form_elements_present PASSED [ 92%]
+tests/test_32_membership_subscription.py::test_32_3_membership_type_updates_pricing FAILED [ 93%]
+tests/test_32_membership_subscription.py::test_32_4_admin_subscription_list_loads PASSED [ 93%]
+tests/test_32_membership_subscription.py::test_32_5_cancel_bobs_subscription_if_active PASSED [ 94%]
+tests/test_32_membership_subscription.py::test_32_6_admin_assigns_subscription_to_bob SKIPPEDve an active or pending subscription. Cancel
+it first (test 32.5) then re-run.)                                       [ 94%]
+tests/test_32_membership_subscription.py::test_32_7_bob_has_payable_invoice PASSED [ 95%]
+tests/test_32_membership_subscription.py::test_32_8_invoice_payment_page_loads_stripe FAILED [ 95%]
+tests/test_32_membership_subscription.py::test_32_9_bob_pays_invoice_with_test_card FAILED [ 96%]
+tests/test_32_membership_subscription.py::test_32_10_subscription_active_after_payment PASSED [ 96%]
+tests/test_32_membership_subscription.py::test_32_11_full_assign_and_pay_workflow SKIPPEDncel it first (test 32.5) and re-run.) [ 96%]
+tests/test_32_membership_subscription.py::test_32_12_bob_ends_with_active_subscription PASSED [ 97%]
+tests/test_33_admin_booking_e2e.py::test_33_1_capture_member_start_balances PASSED [ 97%]
+tests/test_33_admin_booking_e2e.py::test_33_2_admin_creates_wallet_paid_booking PASSED [ 98%]
+tests/test_33_admin_booking_e2e.py::test_33_3_booking_listed_with_refund_button PASSED [ 98%]
+tests/test_33_admin_booking_e2e.py::test_33_4_member_wallet_debited PASSED [ 99%]
+tests/test_33_admin_booking_e2e.py::test_33_5_admin_refunds_booking_to_wallet PASSED [ 99%]
+tests/test_33_admin_booking_e2e.py::test_33_6_member_wallet_restored PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_8_1_stripe_success_payment ________________________
+tests/test_07_09_payment.py:179: in test_8_1_stripe_success_payment
+    await alice_page.wait_for_url(
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:9186: in wait_for_url
+    await self._impl_obj.wait_for_url(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:580: in wait_for_url
+    return await self._main_frame.wait_for_url(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:263: in wait_for_url
+    async with self.expect_navigation(
+.venv/lib/python3.12/site-packages/playwright/_impl/_event_context_manager.py:33: in __aexit__
+    await self._future
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:239: in continuation
+    event = await waiter.result()
+            ^^^^^^^^^^^^^^^^^^^^^
+E   playwright._impl._errors.TimeoutError: Timeout 45000ms exceeded.
+E   =========================== logs ===========================
+E   waiting for navigation to "<function ImplToApiMapping.wrap_handler.<locals>.wrapper_func at 0x7d61c514fec0>" until 'load'
+E     navigated to "https://csc-booking-test.3rdplaces.io/bookings/payment-processing/?payment_intent=pi_3TukfFCWKtsvCO6V15nBr7Yc"
+E   ============================================================
+
+During handling of the above exception, another exception occurred:
+tests/test_07_09_payment.py:184: in test_8_1_stripe_success_payment
+    pytest.fail(
+E   Failed: Booking never reached payment_success — last URL: https://csc-booking-test.3rdplaces.io/bookings/payment-processing/?payment_intent=pi_3TukfFCWKtsvCO6V15nBr7Yc. Confirmation is webhook-driven; verify the booking webhook endpoint (/bookings/webhooks/stripe/) is registered in Stripe and delivering payment_intent.succeeded (run `manage.py diagnose_stripe`).
+__________________ test_29_5_room_color_changes_on_assignment __________________
+tests/test_29_lodge_map.py:143: in test_29_5_room_color_changes_on_assignment
+    await alice_map_page.wait_for_function(
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:11537: in wait_for_function
+    await self._impl_obj.wait_for_function(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:1110: in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:878: in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 5000ms exceeded.
+________________ test_31_7_dashboard_club_calendar_fullcalendar ________________
+tests/test_31_club_events.py:112: in test_31_7_dashboard_club_calendar_fullcalendar
+    assert False, \
+E   AssertionError: FullCalendar loaded but .fc not rendered inside #dashboard-club-calendar after 20s
+E   assert False
+__________________ test_32_3_membership_type_updates_pricing ___________________
+tests/test_32_membership_subscription.py:110: in test_32_3_membership_type_updates_pricing
+    assert await pricing.is_visible(), \
+E   AssertionError: #pricingSummary did not appear after selecting a membership type
+E   assert False
+_________________ test_32_8_invoice_payment_page_loads_stripe __________________
+tests/test_32_membership_subscription.py:254: in test_32_8_invoice_payment_page_loads_stripe
+    await pay_link.click()
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:15603: in click
+    await self._impl_obj.click(
+.venv/lib/python3.12/site-packages/playwright/_impl/_locator.py:162: in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:566: in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("a[href*=\"/billing/invoices/\"][href*=\"/pay/\"]").first
+E       - locator resolved to <a data-notification-id="231" href="/billing/invoices/85/pay/" onclick="markNotificationRead(231)" class="list-group-item list-group-item-action notification-item bg-light">…</a>
+E     - attempting click action
+E       2 × waiting for element to be visible, enabled and stable
+E         - element is not visible
+E       - retrying click action
+E       - waiting 20ms
+E       2 × waiting for element to be visible, enabled and stable
+E         - element is not visible
+E       - retrying click action
+E         - waiting 100ms
+E       58 × waiting for element to be visible, enabled and stable
+E          - element is not visible
+E        - retrying click action
+E          - waiting 500ms
+__________________ test_32_9_bob_pays_invoice_with_test_card ___________________
+tests/test_32_membership_subscription.py:286: in test_32_9_bob_pays_invoice_with_test_card
+    ok = await pay_subscription_invoice_with_card(bob_page)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/helpers.py:143: in pay_subscription_invoice_with_card
+    await pay_link.click()
+.venv/lib/python3.12/site-packages/playwright/async_api/_generated.py:15603: in click
+    await self._impl_obj.click(
+.venv/lib/python3.12/site-packages/playwright/_impl/_locator.py:162: in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:566: in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E   Call log:
+E     - waiting for locator("a[href*=\"/billing/invoices/\"][href*=\"/pay/\"]").first
+E       - locator resolved to <a data-notification-id="231" href="/billing/invoices/85/pay/" onclick="markNotificationRead(231)" class="list-group-item list-group-item-action notification-item bg-light">…</a>
+E     - attempting click action
+E       2 × waiting for element to be visible, enabled and stable
+E         - element is not visible
+E       - retrying click action
+E       - waiting 20ms
+E       2 × waiting for element to be visible, enabled and stable
+E         - element is not visible
+E       - retrying click action
+E         - waiting 100ms
+E       58 × waiting for element to be visible, enabled and stable
+E          - element is not visible
+E        - retrying click action
+E          - waiting 500ms
+--------------------------------- JSON report ----------------------------------
+report saved to: reports/report.json
+- Generated html report: file:///home/geoskimoto/projects/csc_manual_testing/reports/report.html -
+=========================== short test summary info ============================
+FAILED tests/test_07_09_payment.py::test_8_1_stripe_success_payment - Failed: Booking never reached payment_success — last URL: https://csc-booking-test.3rdplaces.io/bookings/payment-processing/?payment_intent=pi_3TukfFCWKtsvCO6V15nBr7Yc. Confirmation is webhook-driven; verify the booking webhook endpoint (/bookings/webhooks/stripe/) is registered in Stripe and delivering payment_intent.succeeded (run `manage.py diagnose_stripe`).
+FAILED tests/test_29_lodge_map.py::test_29_5_room_color_changes_on_assignment - playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 5000ms exceeded.
+FAILED tests/test_31_club_events.py::test_31_7_dashboard_club_calendar_fullcalendar - AssertionError: FullCalendar loaded but .fc not rendered inside #dashboard-club-calendar after 20s
+assert False
+FAILED tests/test_32_membership_subscription.py::test_32_3_membership_type_updates_pricing - AssertionError: #pricingSummary did not appear after selecting a membership type
+assert False
+FAILED tests/test_32_membership_subscription.py::test_32_8_invoice_payment_page_loads_stripe - playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("a[href*=\"/billing/invoices/\"][href*=\"/pay/\"]").first
+    - locator resolved to <a data-notification-id="231" href="/billing/invoices/85/pay/" onclick="markNotificationRead(231)" class="list-group-item list-group-item-action notification-item bg-light">…</a>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    58 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+FAILED tests/test_32_membership_subscription.py::test_32_9_bob_pays_invoice_with_test_card - playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("a[href*=\"/billing/invoices/\"][href*=\"/pay/\"]").first
+    - locator resolved to <a data-notification-id="231" href="/billing/invoices/85/pay/" onclick="markNotificationRead(231)" class="list-group-item list-group-item-action notification-item bg-light">…</a>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    58 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+============ 6 failed, 214 passed, 7 skipped in 1196.16s (0:19:56) =============
+EXIT=1

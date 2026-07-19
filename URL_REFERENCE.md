@@ -60,7 +60,7 @@ All URL patterns. Prefix each with its app mount path from `csc_booking_system/u
 | `/bookings/view_booking_cart/` | `bookings:view_booking_cart` |
 | `/bookings/checkout/` | `bookings:checkout` |
 | `/bookings/create-payment-intent/` | `bookings:create_payment_intent` |
-| `/bookings/stripe-webhook/` | `bookings:stripe_webhook` |
+| `/bookings/webhooks/stripe/` | `bookings:stripe_booking_webhook` |
 | `/bookings/booking-status/` | `bookings:booking_status` |
 | `/bookings/payment-success/` | `bookings:payment_success` |
 | `/bookings/payment-processing/` | `bookings:payment_processing` |
@@ -157,7 +157,7 @@ All URL patterns. Prefix each with its app mount path from `csc_booking_system/u
 | `/subscriptions/admin/profiles/subscription-status/` | `membership_subscriptions:get_profiles_subscription_status` |
 | `/subscriptions/invoice/<int:invoice_id>/pay/` | `membership_subscriptions:invoice_payment` |
 | `/subscriptions/invoice/<int:invoice_id>/process/` | `membership_subscriptions:process_invoice_payment` |
-| `/subscriptions/webhooks/stripe/` | `membership_subscriptions:stripe_webhook` |
+| `/subscriptions/webhooks/stripe/` | `membership_subscriptions:stripe_subscription_webhook` |
 
 ---
 
@@ -176,7 +176,7 @@ All URL patterns. Prefix each with its app mount path from `csc_booking_system/u
 
 | URL | Name |
 |-----|------|
-| `/billing/webhooks/stripe/` | `invoicing:stripe_webhook` |
+| `/billing/webhooks/stripe/` | `invoicing:stripe_invoice_webhook` |
 | `/billing/invoices/<int:invoice_id>/` | `invoicing:invoice_detail` |
 | `/billing/invoices/<int:invoice_id>/pay/` | `invoicing:invoice_payment` |
 | `/billing/invoices/<int:invoice_id>/process-payment/` | `invoicing:process_payment` |
