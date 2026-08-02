@@ -9,7 +9,7 @@ import pytest
 from datetime import date, timedelta
 from playwright.async_api import Page
 from tests.helpers import (
-    BASE_URL, AVAILABILITY_URL, PROFILE_URL, DASHBOARD_URL, screenshot_path
+    BASE_URL, AVAILABILITY_URL, PROFILE_URL, DASHBOARD_URL, screenshot_path, switch_to_card_view
 )
 
 _CHECKIN_DATE  = date.today() + timedelta(days=60)
@@ -53,6 +53,7 @@ async def test_5_3_availability_shows_member_selects(alice_page: Page):
     )
     await alice_page.wait_for_load_state("networkidle")
     await alice_page.wait_for_timeout(2000)
+    await switch_to_card_view(alice_page)
     await alice_page.screenshot(path=screenshot_path("05_3_avail_selects"))
     member_selects = alice_page.locator("select.member-select")
     count = await member_selects.count()
@@ -71,6 +72,7 @@ async def test_5_4_availability_member_select_has_alice(alice_page: Page):
     )
     await alice_page.wait_for_load_state("networkidle")
     await alice_page.wait_for_timeout(2000)
+    await switch_to_card_view(alice_page)
     content = await alice_page.content()
     await alice_page.screenshot(path=screenshot_path("05_4_alice_in_select"))
     assert "alice" in content.lower() or "tester" in content.lower(), \
@@ -89,6 +91,7 @@ async def test_5_5_multiple_rooms_can_be_selected(alice_page: Page):
     )
     await alice_page.wait_for_load_state("networkidle")
     await alice_page.wait_for_timeout(2000)
+    await switch_to_card_view(alice_page)
 
     member_selects = alice_page.locator("select.member-select")
     total = await member_selects.count()

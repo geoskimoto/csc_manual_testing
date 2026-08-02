@@ -9,7 +9,7 @@ import pytest
 from datetime import date, timedelta
 from playwright.async_api import async_playwright, Page
 from tests.helpers import (
-    BASE_URL, AVAILABILITY_URL, CART_URL, screenshot_path, ALICE, BOB, login
+    BASE_URL, AVAILABILITY_URL, CART_URL, screenshot_path, ALICE, BOB, login, switch_to_card_view
 )
 
 _CHECKIN_DATE  = date.today() + timedelta(days=85)
@@ -32,6 +32,7 @@ async def _add_first_available_room(page: Page, label: str) -> bool:
     )
     await page.wait_for_load_state("networkidle")
     await page.wait_for_timeout(1500)
+    await switch_to_card_view(page)
 
     member_selects = page.locator("select.member-select")
     if await member_selects.count() == 0:
@@ -115,6 +116,7 @@ async def test_23_2_concurrent_cart_add_same_user_session(alice_page: Page):
         )
         await alice_page.wait_for_load_state("networkidle")
         await alice_page.wait_for_timeout(500)
+        await switch_to_card_view(alice_page)
 
         member_selects = alice_page.locator("select.member-select")
         if await member_selects.count() == 0:

@@ -89,9 +89,12 @@ async def test_31_7_dashboard_club_calendar_fullcalendar(alice_page: Page):
     await alice_page.wait_for_load_state("networkidle")
     # Poll for .fc element — FullCalendar renders it synchronously after CDN load.
     fc_appeared = False
+    # FullCalendar adds the "fc" class to the element it's given directly
+    # (#dashboard-club-calendar itself), not to a child — so the selector must
+    # be a compound selector (#id.class), not a descendant combinator (#id .class).
     try:
         await alice_page.wait_for_function(
-            "document.querySelector('#dashboard-club-calendar .fc') !== null",
+            "document.querySelector('#dashboard-club-calendar.fc') !== null",
             timeout=20000,
         )
         fc_appeared = True
@@ -108,9 +111,9 @@ async def test_31_7_dashboard_club_calendar_fullcalendar(alice_page: Page):
                 "FullCalendar CDN did not load on dashboard — "
                 "CDN unavailable in this test run; structure verified by test_31_6"
             )
-        # FullCalendar IS loaded but calendar.render() did not add .fc — real app bug
+        # FullCalendar IS loaded but calendar.render() did not add the fc class — real app bug
         assert False, \
-            "FullCalendar loaded but .fc not rendered inside #dashboard-club-calendar after 20s"
+            "FullCalendar loaded but 'fc' class not applied to #dashboard-club-calendar after 20s"
 
 
 @pytest.mark.asyncio

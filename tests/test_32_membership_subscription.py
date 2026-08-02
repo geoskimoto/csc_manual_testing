@@ -232,7 +232,7 @@ async def test_32_7_bob_has_payable_invoice(bob_page: Page):
     await bob_page.screenshot(path=screenshot_path("32_7_bob_invoices"))
 
     # There should be at least one invoice with a Pay link
-    pay_link = bob_page.locator('a[href*="/billing/invoices/"][href*="/pay/"]').first
+    pay_link = bob_page.locator('a.btn-success[href*="/billing/invoices/"][href*="/pay/"]').first
     assert await pay_link.count() > 0, \
         "No payable invoice found for Bob after subscription assignment"
 
@@ -247,12 +247,13 @@ async def test_32_8_invoice_payment_page_loads_stripe(bob_page: Page):
     await bob_page.goto(MY_INVOICES_URL)
     await bob_page.wait_for_load_state("networkidle")
 
-    pay_link = bob_page.locator('a[href*="/billing/invoices/"][href*="/pay/"]').first
+    pay_link = bob_page.locator('a.btn-success[href*="/billing/invoices/"][href*="/pay/"]').first
     if await pay_link.count() == 0:
         pytest.skip("No payable invoice for Bob — run test 32.6 first")
 
     await pay_link.click()
-    await bob_page.wait_for_load_state("networkidle")
+    # "load" not "networkidle" — Stripe's PaymentElement keeps network activity alive.
+    await bob_page.wait_for_load_state("load")
     await bob_page.wait_for_timeout(4000)
     await bob_page.screenshot(path=screenshot_path("32_8_payment_page"))
 

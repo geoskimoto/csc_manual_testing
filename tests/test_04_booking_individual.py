@@ -2,7 +2,7 @@
 import pytest
 from datetime import date, timedelta
 from playwright.async_api import Page
-from tests.helpers import AVAILABILITY_URL, CART_URL, ADD_TO_CART_URL, screenshot_path
+from tests.helpers import AVAILABILITY_URL, CART_URL, ADD_TO_CART_URL, screenshot_path, switch_to_card_view
 
 _CHECKIN_DATE  = date.today() + timedelta(days=30)
 _CHECKOUT_DATE = date.today() + timedelta(days=32)
@@ -22,6 +22,7 @@ async def _search_availability(page: Page, checkin: str, checkout: str):
     )
     await page.wait_for_load_state("networkidle")
     await page.wait_for_timeout(2000)  # wait for JS to render room cards
+    await switch_to_card_view(page)
 
 
 async def _add_first_room_to_cart(page: Page, checkin_display: str = None, checkout_display: str = None) -> bool:

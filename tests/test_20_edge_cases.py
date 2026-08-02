@@ -2,7 +2,7 @@
 import pytest
 from datetime import date, timedelta
 from playwright.async_api import Page
-from tests.helpers import BASE_URL, AVAILABILITY_URL, screenshot_path
+from tests.helpers import BASE_URL, AVAILABILITY_URL, screenshot_path, switch_to_card_view
 
 
 async def _submit_availability(page: Page, checkin: str, checkout: str):
@@ -73,6 +73,7 @@ async def test_20_6_concurrent_cart_add(browser):
         )
         await pg.wait_for_load_state("networkidle")
         await pg.wait_for_timeout(2000)
+        await switch_to_card_view(pg)
 
     await asyncio.gather(search_and_get_first_room(page_a), search_and_get_first_room(page_b))
 

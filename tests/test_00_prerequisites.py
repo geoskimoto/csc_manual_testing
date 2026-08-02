@@ -66,7 +66,7 @@ async def _ensure_active_subscription(
     await member_page.goto(MY_INVOICES_URL)
     await member_page.wait_for_load_state("networkidle")
     has_payable = await member_page.locator(
-        'a[href*="/billing/invoices/"][href*="/pay/"]'
+        'a.btn-success[href*="/billing/invoices/"][href*="/pay/"]'
     ).count() > 0
 
     if has_payable:

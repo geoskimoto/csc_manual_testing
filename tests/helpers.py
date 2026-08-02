@@ -58,6 +58,25 @@ async def login(page: Page, email: str, password: str):
     await page.wait_for_load_state("networkidle")
 
 
+async def switch_to_card_view(page: Page):
+    """Switch the member-facing availability page from Map View to Card View.
+
+    Since commit 6b0b351, Map View is the default on this page and #rooms-content
+    (card view, where select.member-select occupant dropdowns live) starts hidden
+    behind the Card/Map toggle. Call this after searching availability and before
+    interacting with select.member-select. No-op if the toggle isn't present
+    (e.g. the admin availability page uses a different template).
+    """
+    toggle = page.locator("#view-toggle-card")
+    if await toggle.count() == 0:
+        return
+    await toggle.click()
+    try:
+        await page.wait_for_selector("#rooms-content", state="visible", timeout=10000)
+    except Exception:
+        pass
+
+
 # ---------------------------------------------------------------------------
 # Reusable subscription-assignment helpers
 # ---------------------------------------------------------------------------
@@ -136,12 +155,15 @@ async def pay_subscription_invoice_with_card(
     await member_page.wait_for_load_state("networkidle")
 
     # Find a Pay Now link for an unpaid invoice
-    pay_link = member_page.locator('a[href*="/billing/invoices/"][href*="/pay/"]').first
+    pay_link = member_page.locator('a.btn-success[href*="/billing/invoices/"][href*="/pay/"]').first
     if await pay_link.count() == 0:
         return False
 
     await pay_link.click()
-    await member_page.wait_for_load_state("networkidle")
+    # "load" not "networkidle" — the invoice payment page mounts Stripe's
+    # PaymentElement, which keeps network activity alive (same reason the
+    # checkout Stripe tests avoid networkidle) and would time this out.
+    await member_page.wait_for_load_state("load")
     # Give Stripe time to mount the PaymentElement
     await member_page.wait_for_timeout(4000)
 

@@ -7,7 +7,7 @@ JavaScript. These tests verify the guest UI is present and functional.
 import pytest
 from datetime import date, timedelta
 from playwright.async_api import Page
-from tests.helpers import AVAILABILITY_URL, CART_URL, CHECKOUT_URL, screenshot_path
+from tests.helpers import AVAILABILITY_URL, CART_URL, CHECKOUT_URL, screenshot_path, switch_to_card_view
 
 _CHECKIN_DATE  = date.today() + timedelta(days=65)
 _CHECKOUT_DATE = date.today() + timedelta(days=67)
@@ -28,6 +28,7 @@ async def _load_availability(page: Page):
     )
     await page.wait_for_load_state("networkidle")
     await page.wait_for_timeout(2000)
+    await switch_to_card_view(page)
 
 
 @pytest.mark.asyncio
