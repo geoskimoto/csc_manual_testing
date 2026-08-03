@@ -64,6 +64,7 @@ The cleanup step in `seed_test_data` nullifies invoices against reg-test profile
 | Bob | `bob.tester@csc-test.local` | `TestPass99!` | Same setup as Alice |
 | Booking Admin | `booking.admin@csc-test.local` | `AdminPass99!` | Booking + financial admin tools, no `/admin/` |
 | Financial Admin | `financial.admin@csc-test.local` | `AdminPass99!` | All booking admin access + `/admin/` |
+| Members+ | `members.plus@csc-test.local` | `AdminPass99!` | Regular member + newsletter management only (`can_manage_newsletters`), no `/admin/`, no booking-admin tools |
 
 Registration test accounts (created/consumed per run by seed_test_data):
 
@@ -123,7 +124,7 @@ Key decorators/mixins and their behavior:
 
 ## Test Coverage Status
 
-_188 tests collected as of 2026-05-22. Last full run: see latest reports/analysis_*.md._
+_258 tests collected as of 2026-08-03. Last full run: 1 failed (pre-existing, known real app bug — see Known Issues), 217 passed, 9 skipped (sections 1-33; sections 34-36 added same day, all passing)._
 
 | Section | File | Tests | Status |
 |---------|------|-------|--------|
@@ -131,9 +132,9 @@ _188 tests collected as of 2026-05-22. Last full run: see latest reports/analysi
 | 2 — Registration / Onboarding | `test_02_registration.py` | 16 | Passing — **tokens consumed each run; seed required** |
 | 3 — Dashboard | `test_03_dashboard.py` | 5 | Passing |
 | 4 — Booking (Individual) | `test_04_booking_individual.py` | 6 | Passing |
-| 5 — Family Booking | `test_05_family_booking.py` | 5 | Written |
-| 6 — Guest Booking | `test_06_guest_booking.py` | 4 | Written |
-| 7–9 — Payments | `test_07_09_payment.py` | 5 | 2 test bugs in Stripe iframe locator (see Known Issues) |
+| 5 — Family Booking | `test_05_family_booking.py` | 5 | Passing |
+| 6 — Guest Booking | `test_06_guest_booking.py` | 4 | Passing |
+| 7–9 — Payments | `test_07_09_payment.py` | 5 | Passing |
 | 10 — Cancellation/Refund | `test_10_cancellation.py` | 4 | 1 skip — cancellation policy text not visible for seeded state |
 | 11 — Booking History | `test_11_booking_history.py` | 5 | Passing |
 | 12 — Admin Booking | `test_12_admin_booking.py` | 8 | Passing |
@@ -153,16 +154,26 @@ _188 tests collected as of 2026-05-22. Last full run: see latest reports/analysi
 | 26 — Invoice Admin | `test_26_invoice_admin.py` | 9 | Passing — creates test invoices; seed cleans them up |
 | 27 — Subscription Admin | `test_27_subscription_admin.py` | 8 | Passing |
 | 28 — Admin Refund Modal | `test_28_admin_refund.py` | 8 | Passing — does NOT submit refund (protects Alice's seeded booking) |
-| 29 — Lodge Map Booking | `test_29_lodge_map.py` | 15 | Written — map rendering, popover interactions, keyboard, filter, full booking flows (individual, other member, guest), AJAX date rebuild. 29_13 and 29_14 skip if multi-member or guest options absent (missing_data) |
-| 30 — Financial Dashboard | not written | — | Not planned |
+| 29 — Lodge Map Booking | `test_29_lodge_map.py` | 16 | 1 known real app bug (test_29_5 — see Known Issues). 29_13/29_14 skip if multi-member or guest options absent (missing_data) |
+| 30 — Bed List Map | `test_30_bed_list_map.py` | 8 | Passing |
+| 31 — Club Events | `test_31_club_events.py` | 8 | Passing |
+| 32 — Membership Subscription Workflow | `test_32_membership_subscription.py` | 12 | Passing — 2 skips when Bob already has an active/pending subscription (run 32.5 first) |
+| 33 — Admin Booking E2E | `test_33_admin_booking_e2e.py` | 6 | Passing |
+| 34 — Members+ Role & Newsletter Mgmt | `test_34_newsletters.py` | 8 | Passing — requires `members.plus@csc-test.local` + seeded Newsletter fixture |
+| 35 — Admin Alert Recipients | `test_35_admin_alerts.py` | 7 | Passing — requires seeded `AdminAlertRecipient` (stuck_payment) fixture |
+| 36 — Financial Dashboard / AR Aging / Deferred Revenue | `test_36_financial_dashboard.py` | 16 | Passing — requires seeded 45-day-overdue invoice fixture |
 
 ---
 
 ## Known Issues
 
-### Test Bugs (test needs updating, not the app)
+### Real App Bugs (do not fix by modifying the test)
 
-- **`test_8_1_stripe_success_payment`, `test_8_2_stripe_declined_card`:** `_fill_stripe_fields()` uses `locator("input")` which resolves to 6 elements inside the Stripe iframe (strict mode violation). Fix: use `card_frame.get_by_role("textbox", name="Credit or debit card number")` for card number, and equivalent targeted selectors for expiry/CVV.
+- **`test_29_5_room_color_changes_on_assignment`:** Deliberately rewritten (commit `6c0939f`) to use a deterministic `wait_for_function` instead of a fixed sleep, specifically to expose a real bug in the lodge map JS: selecting an occupant in the popover does not reliably flip the room's `data-state` to `assigned` within 5s. Confirmed still failing as of 2026-08-03. Leave the test as-is — it is correctly failing against real app behavior, not a stale assertion.
+
+### Not Automated (by design)
+
+- **Fiscal-year closing / period-lock protection:** The `financials.period_lock.assert_period_open()` guard (blocks invoice voids/payments/edits dated inside a closed accounting period) is exercised only via a Django-admin bulk action (`/admin/financials/fiscalyear/`, "Close fiscal year(s)"), reachable only by Financial Administrators/superuser. There is no UI route to close a period, and no "reopen" action in this phase — only a superuser manually flipping `is_closed` in the DB. Automating this against shared staging state would permanently close a real accounting period with no clean rollback, so it is intentionally **not** covered by an automated test. If this needs verification, do it manually: create a disposable far-future/past `FiscalYear` (never the real current one), close it via the admin action, attempt a payment/void/edit dated inside it through the app UI, and confirm the `messages.error` text: `"Fiscal year {name} ({start} to {end}) is closed. This date ({date}) falls inside a closed accounting period and cannot be modified."`
 
 ### Permanent / Intentional Skips
 
@@ -185,6 +196,10 @@ _188 tests collected as of 2026-05-22. Last full run: see latest reports/analysi
 - **Invoice formset (create)**: The `LineItemFormSet` has `extra=3` empty rows. Before submitting, set `form-TOTAL_FORMS` to `"1"` via `page.evaluate()` to prevent empty-row validation errors.
 - **Subscription details modal**: Triggered by `.view-details-btn` via AJAX. Wait for `#subscriptionDetailsModal.show` (not just `#subscriptionDetailsModal`).
 - **Admin refund modal**: Triggered by `.refund-booking-btn`. Wait for `#refundBookingModal.show`.
+- **Availability page card-view selects**: Map View is the default view on `/bookings/check_availability/` (since app commit `6b0b351`) — `#rooms-content` (card view, where `select.member-select` occupant dropdowns live) starts `d-none`. Call `switch_to_card_view(page)` from `tests/helpers.py` right after searching availability and before touching `select.member-select`.
+- **Invoice pay links**: Scope to `a.btn-success[href*="/pay/"]`, never a bare `a[href*="/pay/"]` — the notification-dropdown partial in `navbar.html` (present on every page) renders a matching but hidden link for unread pay-invoice notifications, and an unscoped locator's `.first` can resolve to that instead of the real button.
+- **Stripe-mounted pages (checkout, invoice payment)**: Use `wait_for_load_state("load")`, never `"networkidle"`, after navigating to or clicking into a page that mounts a Stripe PaymentElement/iframe — Stripe keeps background network activity alive indefinitely, so `networkidle` never resolves and times out.
+- **FullCalendar root element**: FullCalendar applies its `fc` class to the container element you hand it (`document.getElementById(...)`), not to a child — so target it with a compound selector (`#dashboard-club-calendar.fc`), never a descendant combinator (`#dashboard-club-calendar .fc`), which can never match.
 
 ---
 

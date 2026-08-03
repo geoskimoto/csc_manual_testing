@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 from playwright.async_api import async_playwright, Page
-from tests.helpers import ALICE, BOB, BOOKING_ADMIN, FINANCIAL_ADMIN, login, AVAILABILITY_URL
+from tests.helpers import ALICE, BOB, BOOKING_ADMIN, FINANCIAL_ADMIN, MEMBERS_PLUS, login, AVAILABILITY_URL
 
 
 # Function-scoped browser per test — avoids session/event-loop scope conflicts
@@ -54,6 +54,15 @@ async def financial_admin_page(browser):
     context = await browser.new_context(viewport={"width": 1280, "height": 800})
     pg = await context.new_page()
     await login(pg, FINANCIAL_ADMIN["email"], FINANCIAL_ADMIN["password"])
+    yield pg
+    await context.close()
+
+
+@pytest_asyncio.fixture
+async def members_plus_page(browser):
+    context = await browser.new_context(viewport={"width": 1280, "height": 800})
+    pg = await context.new_page()
+    await login(pg, MEMBERS_PLUS["email"], MEMBERS_PLUS["password"])
     yield pg
     await context.close()
 

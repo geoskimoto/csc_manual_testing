@@ -6,6 +6,7 @@ ALICE           = {"email": "alice.tester@csc-test.local",    "password": "TestP
 BOB             = {"email": "bob.tester@csc-test.local",      "password": "TestPass99!"}
 BOOKING_ADMIN   = {"email": "booking.admin@csc-test.local",   "password": "AdminPass99!"}
 FINANCIAL_ADMIN = {"email": "financial.admin@csc-test.local", "password": "AdminPass99!"}
+MEMBERS_PLUS    = {"email": "members.plus@csc-test.local",    "password": "AdminPass99!"}
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 
 # Member-facing URLs
@@ -42,6 +43,18 @@ STUCK_PAYMENTS_URL    = f"{BASE_URL}/bookings/admin/stuck-payment-dashboard/"
 # Newer feature URLs
 BED_LIST_URL  = f"{BASE_URL}/dashboard/bed-list-calendar/"
 EVENTS_URL    = f"{BASE_URL}/events/"
+
+# Newsletters (Members+ capability)
+NEWSLETTERS_URL        = f"{BASE_URL}/newsletters/"
+NEWSLETTERS_MANAGE_URL = f"{BASE_URL}/newsletters/manage/"
+
+# Admin alert recipients
+ADMIN_ALERT_RECIPIENTS_URL = f"{BASE_URL}/notifications/admin/alert-recipients/"
+
+# Financial dashboard / reporting
+FINANCIAL_DASHBOARD_URL   = f"{BASE_URL}/financials/"
+DEFERRED_REVENUE_URL      = f"{BASE_URL}/financials/deferred-revenue/"
+AR_AGING_URL              = f"{BASE_URL}/financials/ar-aging/"
 
 
 def screenshot_path(name: str) -> str:
