@@ -1,7 +1,7 @@
 """Section 24 — Stuck Payment Dashboard
 
 Access is restricted to Financial Administrators only. Tests cover:
-- Access control (anonymous, member, booking admin → 403; financial admin → 200)
+- Access control (anonymous → login redirect; member, booking admin → 403; financial admin → 200)
 - Page structure (stat cards, section headings, action links)
 - Seeded data (unresolved record in unresolved table, resolved record in recently-resolved table)
 """
@@ -19,12 +19,16 @@ RESOLVED_PI_ID = "pi_seed_test_resolved"
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_24_1_anonymous_gets_403(page: Page):
-    """Unauthenticated request to the stuck payment dashboard returns 403."""
+async def test_24_1_anonymous_redirected_to_login(page: Page):
+    """Unauthenticated request to the stuck payment dashboard redirects to
+    login. `deny_access()` was changed 2026-09-23 (see root CLAUDE.md,
+    'Anonymous visitors get a login redirect, never a 403') so anonymous
+    users no longer 403 here — only an authenticated-but-unauthorized user
+    does (see test_24_2)."""
     response = await page.goto(STUCK_PAYMENTS_URL)
     await page.wait_for_load_state("networkidle")
     await page.screenshot(path=screenshot_path("24_1_anonymous_403"))
-    assert response.status == 403, f"Expected 403 for anonymous user, got {response.status}"
+    assert "sign-in" in page.url, f"Expected redirect to sign-in, got {page.url}"
 
 
 @pytest.mark.asyncio

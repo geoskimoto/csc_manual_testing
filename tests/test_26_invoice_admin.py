@@ -149,9 +149,12 @@ async def test_26_8_record_payment(financial_admin_page: Page):
     await payment_link.click()
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_8_record_payment_form"))
-    # Fill payment form
+    # Fill payment form. Field is `offline_method` (renamed from
+    # `payment_method` at some point after this test was written — see
+    # invoicing.forms.RecordPaymentForm); "manual" was never a valid choice
+    # either way (OFFLINE_METHOD_CHOICES: cash/check/wire/card_external/other).
     await financial_admin_page.fill('input[name="amount"]', "25.00")
-    await financial_admin_page.select_option('select[name="payment_method"]', value="manual")
+    await financial_admin_page.select_option('select[name="offline_method"]', value="cash")
     await financial_admin_page.click('button[type="submit"]')
     await financial_admin_page.wait_for_load_state("networkidle")
     await financial_admin_page.screenshot(path=screenshot_path("26_8b_paid_invoice"))

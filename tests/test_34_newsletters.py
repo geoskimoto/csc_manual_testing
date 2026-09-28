@@ -96,9 +96,17 @@ async def test_34_7_upload_form_has_expected_fields(members_plus_page: Page):
 
 
 @pytest.mark.asyncio
-async def test_34_8_admin_tools_shows_only_manage_newsletters_for_members_plus(members_plus_page: Page):
-    """A Members+ user who is not a booking admin sees an Admin Tools dropdown
-    containing exactly one item: Manage Newsletters."""
+async def test_34_8_admin_tools_shows_only_non_booking_admin_items_for_members_plus(members_plus_page: Page):
+    """A Members+ user who is not a booking admin sees only the items gated by
+    their own capabilities, never anything gated on `is_booking_administrator`.
+
+    The exact item set has grown since this test was first written (Members+
+    has since gained Club Events, Maintenance Reports, and Waiver Compliance
+    capabilities, and `can_manage_events` alone renders two items — Create
+    Event and Manage Events) — asserting on the specific expected texts
+    rather than a bare count means the next capability grant doesn't silently
+    break this test again the same way.
+    """
     await members_plus_page.goto(NEWSLETTERS_URL)
     await members_plus_page.wait_for_load_state("networkidle")
 
@@ -109,6 +117,19 @@ async def test_34_8_admin_tools_shows_only_manage_newsletters_for_members_plus(m
     items = dropdown.locator("li a.dropdown-item")
     count = await items.count()
     await members_plus_page.screenshot(path=screenshot_path("34_8_admin_tools_dropdown"))
-    assert count == 1, f"Expected exactly 1 Admin Tools item for Members+, found {count}"
-    text = await items.first.inner_text()
-    assert "manage newsletters" in text.lower()
+
+    texts = [t.lower() for t in await items.all_inner_texts()]
+    expected = [
+        "financial dashboard", "manage newsletters", "create event",
+        "manage events", "maintenance reports", "waiver compliance",
+    ]
+    for label in expected:
+        assert any(label in t for t in texts), f"Expected '{label}' in Members+ Admin Tools, got {texts}"
+    assert count == len(expected), (
+        f"Expected exactly {len(expected)} Admin Tools items for Members+, found {count}: {texts}"
+    )
+
+    booking_admin_only = ["admin dashboard", "send invitations", "invoice management", "admin alert settings"]
+    for label in booking_admin_only:
+        assert not any(label in t for t in texts), \
+            f"Members+ should never see booking-admin-only item '{label}'"
