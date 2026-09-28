@@ -379,9 +379,13 @@ async def test_2_14_registration_with_child_family_member_succeeds(page: Page):
     if await first_fm_first.count() > 0:
         await first_fm_first.fill("Junior")
         await page.fill('[name="family-0-last_name"]', "Member")
-        dob_field = page.locator('[name="family-0-date_of_birth"]')
-        if await dob_field.count() > 0:
-            await dob_field.fill("2015-06-15")
+        # DOB is rendered as three Django SelectDateWidget <select> elements
+        # (month/day/year), not a single date input, since app commit 4cee11a.
+        dob_month = page.locator('[name="family-0-date_of_birth_month"]')
+        if await dob_month.count() > 0:
+            await dob_month.select_option("6")
+            await page.select_option('[name="family-0-date_of_birth_day"]', "15")
+            await page.select_option('[name="family-0-date_of_birth_year"]', "2015")
 
     await page.click('button[type="submit"]')
     await page.wait_for_load_state("networkidle")
