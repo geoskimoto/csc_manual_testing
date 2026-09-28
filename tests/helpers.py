@@ -56,6 +56,34 @@ FINANCIAL_DASHBOARD_URL   = f"{BASE_URL}/financials/"
 DEFERRED_REVENUE_URL      = f"{BASE_URL}/financials/deferred-revenue/"
 AR_AGING_URL              = f"{BASE_URL}/financials/ar-aging/"
 
+# Credit Member Wallet (admin)
+CREDIT_WALLET_URL = f"{BASE_URL}/admin-bookings/credit-wallet/"
+
+# Promote-to-Account-Holder (admin picker + public token acceptance)
+PROMOTE_PROFILE_URL       = f"{BASE_URL}/user/admin/promote-profile/"
+PROMOTE_ACCEPT_URL_STEM   = f"{BASE_URL}/user/promote/"  # + <token>/
+
+# Waivers app. There is no fixed GUEST_SIGN_URL constant — the seeded
+# WaiverTemplate defaults to audience='members' and 404s from the public
+# guest-sign route by design, so tests discover a live guest-facing
+# template's path dynamically (see test_39_waivers.py::_discover_guest_sign_path).
+MY_WAIVERS_URL          = f"{BASE_URL}/waivers/"
+WAIVER_SIGN_REQUIRED_URL = f"{BASE_URL}/waivers/sign-required/"
+WAIVER_COMPLIANCE_URL    = f"{BASE_URL}/waivers/manage/"
+WAIVER_GUEST_LIST_URL    = f"{BASE_URL}/waivers/manage/guests/"
+WAIVER_GUEST_LINKS_URL   = f"{BASE_URL}/waivers/manage/guest-links/"
+
+# Broadcasts app (admin club-wide email)
+BROADCASTS_URL         = f"{BASE_URL}/broadcasts/"
+BROADCASTS_COMPOSE_URL = f"{BASE_URL}/broadcasts/new/"
+
+# Maintenance Reports (Members+ / Booking Admin) — lodge.urls is mounted at
+# the site root, not under /lodge/.
+MAINTENANCE_REPORTS_URL = f"{BASE_URL}/maintenance-reports/"
+
+# Profile Integrity admin detail page (Financial Admin only)
+PROFILE_INTEGRITY_URL = f"{BASE_URL}/user/admin/profile-integrity/"
+
 
 def screenshot_path(name: str) -> str:
     SCREENSHOT_DIR.mkdir(exist_ok=True)
@@ -69,6 +97,30 @@ async def login(page: Page, email: str, password: str):
     await page.fill('input[name="password"]', password)
     await page.click('button[type="submit"]')
     await page.wait_for_load_state("networkidle")
+
+
+async def fill_ckeditor(page: Page, field_id: str, text: str):
+    """Set a django-ckeditor-5 field's content via its JS API.
+
+    CKEditor5 replaces the source <textarea> with a contenteditable rich-text
+    area and only syncs back to the textarea on form submit — clicking/typing
+    into the rich-text area is brittle across versions and layouts.
+    django-ckeditor-5 exposes the live editor instance as
+    `<textarea>.ckeditorInstance`, so setting data through that is the
+    reliable path. Falls back to a plain value set if the editor hasn't
+    initialized (e.g. its JS bundle is still loading).
+    """
+    await page.evaluate(
+        """([id, text]) => {
+            const el = document.getElementById(id);
+            if (el && el.ckeditorInstance) {
+                el.ckeditorInstance.setData(text);
+            } else if (el) {
+                el.value = text;
+            }
+        }""",
+        [field_id, text],
+    )
 
 
 async def switch_to_card_view(page: Page):
