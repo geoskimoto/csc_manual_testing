@@ -124,7 +124,7 @@ Key decorators/mixins and their behavior:
 
 ## Test Coverage Status
 
-_258 tests collected as of 2026-08-03. Last full run: 1 failed (pre-existing, known real app bug — see Known Issues), 217 passed, 9 skipped (sections 1-33; sections 34-36 added same day, all passing)._
+_258 tests collected as of 2026-08-03; 264 as of 2026-09-28 with sections 37-42 added. A full re-run on 2026-09-28 (the suite's first run since 2026-08-03) surfaced 6 tests that had gone stale against real app changes in the intervening ~8 weeks — all fixed same day except the two noted below. See "Known Issues" for the two still open. Re-verify this section's counts whenever the suite goes this long between runs; staleness compounds with wall-clock time, not just code changes (see the seed-fixture date-drift issue below)._
 
 | Section | File | Tests | Status |
 |---------|------|-------|--------|
@@ -149,19 +149,25 @@ _258 tests collected as of 2026-08-03. Last full run: 1 failed (pre-existing, kn
 | 21 — Responsive | `test_21_responsive.py` | 2 | Passing |
 | 22 — Cross-Browser | `test_22_cross_browser.py` | 5 | Skips gracefully if Firefox/WebKit not installed |
 | 23 — Race Conditions | `test_23_race_conditions.py` | 3 | Passing |
-| 24 — Stuck Payments Dashboard | `test_24_stuck_payments.py` | 9 | Passing — Financial Admin only (403 for all others) |
+| 24 — Stuck Payments Dashboard | `test_24_stuck_payments.py` | 9 | Financial Admin only (login-redirect for anonymous since the app's 2026-09-23 `deny_access()` change, 403 for authenticated-but-unauthorized). 1 open issue — see Known Issues (`test_24_8`) |
 | 25 — Admin Transactions Filters | `test_25_admin_transactions_filters.py` | 9 | Passing |
-| 26 — Invoice Admin | `test_26_invoice_admin.py` | 9 | Passing — creates test invoices; seed cleans them up |
+| 26 — Invoice Admin | `test_26_invoice_admin.py` | 9 | Passing — creates test invoices; seed cleans them up. `test_26_8` fixed 2026-09-28 (`payment_method` field renamed to `offline_method`) |
 | 27 — Subscription Admin | `test_27_subscription_admin.py` | 8 | Passing |
 | 28 — Admin Refund Modal | `test_28_admin_refund.py` | 8 | Passing — does NOT submit refund (protects Alice's seeded booking) |
 | 29 — Lodge Map Booking | `test_29_lodge_map.py` | 16 | 1 known real app bug (test_29_5 — see Known Issues). 29_13/29_14 skip if multi-member or guest options absent (missing_data) |
 | 30 — Bed List Map | `test_30_bed_list_map.py` | 8 | Passing |
 | 31 — Club Events | `test_31_club_events.py` | 8 | Passing |
-| 32 — Membership Subscription Workflow | `test_32_membership_subscription.py` | 12 | Passing — 2 skips when Bob already has an active/pending subscription (run 32.5 first) |
+| 32 — Membership Subscription Workflow | `test_32_membership_subscription.py` | 12 | Passing — skips (32_6, 32_7, 32_8) when Bob already has an active/pending subscription (run 32.5 first). `test_32_7` fixed 2026-09-28 to skip like 32_8 instead of hard-failing when 32_6 skips |
 | 33 — Admin Booking E2E | `test_33_admin_booking_e2e.py` | 6 | Passing |
-| 34 — Members+ Role & Newsletter Mgmt | `test_34_newsletters.py` | 8 | Passing — requires `members.plus@csc-test.local` + seeded Newsletter fixture |
+| 34 — Members+ Role & Newsletter Mgmt | `test_34_newsletters.py` | 8 | Passing — requires `members.plus@csc-test.local` + seeded Newsletter fixture. `test_34_8` fixed 2026-09-28 — asserts the specific expected item set (6, not 1) now that Members+ has more capabilities |
 | 35 — Admin Alert Recipients | `test_35_admin_alerts.py` | 7 | Passing — requires seeded `AdminAlertRecipient` (stuck_payment) fixture |
-| 36 — Financial Dashboard / AR Aging / Deferred Revenue | `test_36_financial_dashboard.py` | 16 | Passing — requires seeded 45-day-overdue invoice fixture |
+| 36 — Financial Dashboard / AR Aging / Deferred Revenue | `test_36_financial_dashboard.py` | 16 | 1 open issue — see Known Issues (`test_36_16`, seed-fixture date drift) |
+| 37 — Credit Member Wallet (admin) | `test_37_credit_wallet.py` | 5 | Added 2026-09-28 |
+| 38 — Promote-to-Account-Holder | `test_38_promote_account_holder.py` | 5 | Added 2026-09-28 — acceptance-page happy path NOT automated (no way to read the invitation email); see Known Issues |
+| 39 — Waivers | `test_39_waivers.py` | 9 | Added 2026-09-28 — never signs the seeded member fixture (would break the compliance-roster fixture). Guest-sign tests (39_3, 39_8, 39_9) discover a live `audience in (guests, both)` template via `guest_sign_links` and **skip** rather than fail when none exists — staging had none as of 2026-09-28, a missing_data gap worth seeding if this coverage matters ongoing |
+| 40 — Broadcasts (admin club-wide email) | `test_40_broadcasts.py` | 7 | Added 2026-09-28 — never clicks the real "Send to {N} recipients" button; only "Send test to myself". `test_40_7` skips when the audience is under `BROADCAST_TYPED_CONFIRM_THRESHOLD` (no gate rendered) |
+| 41 — Maintenance Reports | `test_41_maintenance_reports.py` | 7 | Added 2026-09-28 — status-update test conditional on a report existing |
+| 42 — Profile Integrity admin page | `test_42_profile_integrity.py` | 5 | Added 2026-09-28 — dismiss/undismiss round trip conditional on a live finding existing; expands the `#dismissed-findings` Bootstrap collapse before interacting with it |
 
 ---
 
@@ -169,11 +175,17 @@ _258 tests collected as of 2026-08-03. Last full run: 1 failed (pre-existing, kn
 
 ### Real App Bugs (do not fix by modifying the test)
 
-- **`test_29_5_room_color_changes_on_assignment`:** Deliberately rewritten (commit `6c0939f`) to use a deterministic `wait_for_function` instead of a fixed sleep, specifically to expose a real bug in the lodge map JS: selecting an occupant in the popover does not reliably flip the room's `data-state` to `assigned` within 5s. Confirmed still failing as of 2026-08-03. Leave the test as-is — it is correctly failing against real app behavior, not a stale assertion.
+- **`test_29_5_room_color_changes_on_assignment`:** Deliberately rewritten (commit `6c0939f`) to use a deterministic `wait_for_function` instead of a fixed sleep, specifically to expose a real bug in the lodge map JS: selecting an occupant in the popover does not reliably flip the room's `data-state` to `assigned` within 5s. Confirmed still failing as of 2026-08-03, and again 2026-09-28. Leave the test as-is — it is correctly failing against real app behavior, not a stale assertion.
+
+### Open — needs investigation or a fix in the other repo
+
+- **`test_36_16_seeded_overdue_invoice_visible_in_31_60_bucket`** (found 2026-09-28, not yet fixed): the seed fixture for Alice's overdue invoice (created by `seed_financial_test_data` / `seed_test_data` in `csc-booking-system-test`) uses a **fixed calendar due date** (June 19, 2026) rather than one computed relative to "today." It was ~45 days overdue (31-60 bucket) when this test was written on 2026-08-03; by 2026-09-28 it's ~101 days overdue (90+ bucket), and by the time anyone reads this it may have drifted further. This is a bug in the main app's seed command, not in this test — fix there (compute the due date as `date.today() - timedelta(days=45)` at seed time, not a literal date) rather than loosening this assertion.
+- **`test_24_8_unresolved_record_visible`** (found 2026-09-28, not yet fixed): the seeded unresolved `StuckPayment` fixture (`pi_seed_test_unresolved`) wasn't present when this ran on 2026-09-28 — the dashboard showed 0 unresolved. Suspected but unconfirmed cause: the real `csc-retry-stuck-payments.timer` (runs every 15 minutes on staging per the main repo's `CLAUDE.md`) may process and resolve the fake seeded payment intent before this test gets to it, if enough wall-clock time passes between `seed_test_data` and running this section. Needs someone to check `retry_stuck_payments`'s behavior against a payment intent ID that doesn't exist in Stripe, and/or seed closer to test time.
 
 ### Not Automated (by design)
 
 - **Fiscal-year closing / period-lock protection:** The `financials.period_lock.assert_period_open()` guard (blocks invoice voids/payments/edits dated inside a closed accounting period) is exercised only via a Django-admin bulk action (`/admin/financials/fiscalyear/`, "Close fiscal year(s)"), reachable only by Financial Administrators/superuser. There is no UI route to close a period, and no "reopen" action in this phase — only a superuser manually flipping `is_closed` in the DB. Automating this against shared staging state would permanently close a real accounting period with no clean rollback, so it is intentionally **not** covered by an automated test. If this needs verification, do it manually: create a disposable far-future/past `FiscalYear` (never the real current one), close it via the admin action, attempt a payment/void/edit dated inside it through the app UI, and confirm the `messages.error` text: `"Fiscal year {name} ({start} to {end}) is closed. This date ({date}) falls inside a closed accounting period and cannot be modified."`
+- **Promote-to-Account-Holder acceptance flow (`test_38`):** The public token-acceptance page (`/user/promote/<token>/`) can only be reached with a real `ProfilePromotionInvitation` token, which is only ever delivered by email — this suite has no way to read staging's sent mail. `test_38` covers the admin-side send flow and the public page's handling of a bogus token, but not completing a real acceptance. If this needs verification, do it manually: send an invitation to an address you control, open the emailed link, and confirm the account-creation form works and preserves the profile's `pid`/`family`/booking history.
 
 ### Permanent / Intentional Skips
 
@@ -200,6 +212,10 @@ _258 tests collected as of 2026-08-03. Last full run: 1 failed (pre-existing, kn
 - **Invoice pay links**: Scope to `a.btn-success[href*="/pay/"]`, never a bare `a[href*="/pay/"]` — the notification-dropdown partial in `navbar.html` (present on every page) renders a matching but hidden link for unread pay-invoice notifications, and an unscoped locator's `.first` can resolve to that instead of the real button.
 - **Stripe-mounted pages (checkout, invoice payment)**: Use `wait_for_load_state("load")`, never `"networkidle"`, after navigating to or clicking into a page that mounts a Stripe PaymentElement/iframe — Stripe keeps background network activity alive indefinitely, so `networkidle` never resolves and times out.
 - **FullCalendar root element**: FullCalendar applies its `fc` class to the container element you hand it (`document.getElementById(...)`), not to a child — so target it with a compound selector (`#dashboard-club-calendar.fc`), never a descendant combinator (`#dashboard-club-calendar .fc`), which can never match.
+- **Date-of-birth fields (SelectDateWidget)**: Since app commit `4cee11a`, every DOB field (family registration, and any new admin form using the same pattern) renders as three separate `<select>` elements, not a single date input — `name="{field}_month"` (values `"1"`–`"12"`, no zero-padding), `name="{field}_day"` (values `"1"`–`"31"`), `name="{field}_year"` (descending from the current year, values are the literal 4-digit year). Use three `select_option()` calls; a `.fill()` against `[name="{field}"]` matches nothing and silently no-ops.
+- **`fetch()`-driven admin actions**: Some newer admin tools (e.g. Profile Integrity dismiss/undismiss) act via a `fetch()` call from a button click rather than a form submit. The Profile Integrity page calls `location.reload()` itself once the fetch resolves successfully — wrap the click in `async with page.expect_navigation():` rather than clicking-then-`wait_for_load_state`, since the reload happens asynchronously after the click handler returns. On failure it raises a blocking `alert()` — register a `page.on("dialog", lambda d: d.accept())` handler before clicking, or the test hangs waiting on the dialog.
+- **Don't switch the role fixtures to a shared Playwright `storage_state`** (tried and reverted 2026-09-28). It cuts ~250+ real per-test logins down to 5, but every test for a role then shares the exact same Django `sessionid`, and the admin booking cart is session-bound (test_33's own docstring: "every fixture opens a fresh browser context (fresh session)"). That shared session let stale/expired cart state from one test leak into another — surfaced as `test_33_2_admin_creates_wallet_paid_booking` hanging 45s waiting for a checkout redirect that never came, because the cart it POSTed had gone stale between whichever tests shared its session. Fresh per-test logins are a correctness requirement, not just a login-flow nicety.
+- **CKEditor5 fields** (e.g. broadcast `body`): a rich-text contenteditable area, not a plain textarea — `.fill()` against `[name="body"]` does nothing. Use `tests/helpers.py::fill_ckeditor(page, field_id, text)`, which sets content through the editor's own `ckeditorInstance.setData()` JS API rather than simulating clicks/typing into the rich-text area.
 
 ---
 
